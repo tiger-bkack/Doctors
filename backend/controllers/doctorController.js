@@ -1,0 +1,190 @@
+import doctorModel from "../models/doctorModel.js";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import appointmentModel from "../models/appointmentModel.js";
+
+const changeAvalibality = async (req, res) => {
+  try {
+    const { docId } = req.body;
+
+    const docData = await doctorModel.findById(docId);
+    await doctorModel.findByIdAndUpdate(docData, {
+      avalibale: !docData.avalibale,
+    });
+    res.json({ success: true, message: "تم تحديث الحاله بنجاح" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: fales, message: error.message });
+  }
+};
+
+const doctorList = async (req, res) => {
+  try {
+    const doctors = await doctorModel.find({}).select(["-password", "-email"]);
+
+    res.json({ success: true, doctors });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: fales, message: error.message });
+  }
+};
+
+const loginDoctor = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const doctor = await doctorModel.findOne({ email });
+
+    if (!doctor) {
+      res.json({
+        success: false,
+        message: "ربما البريد الاكلتروني أو كلة السر خطاء",
+      });
+    }
+    const comparPassword = await bcrypt.compare(password, doctor.password);
+
+    if (comparPassword) {
+      const token = jwt.sign({ id: doctor._id }, process.env.JWT_SECRET);
+      res.json({ success: true, token });
+    } else {
+      res.json({
+        success: false,
+        message: "ربما البريد الاكلتروني أو كلة السر خطاء",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+const doctorAppointments = async (req, res) => {
+  try {
+    const { docId } = req.body;
+    const appointments = await appointmentModel.find({ docId });
+
+    res.json({ success: true, appointments });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+const appointmentCompleted = async (req, res) => {
+  try {
+    const { docId, appointmentId } = req.body;
+
+    const appointmentData = await appointmentModel.findById(appointmentId);
+    if (appointmentData && appointmentData.docId === docId) {
+      await appointmentModel.findByIdAndUpdate(appointmentId, {
+        isCompleted: true,
+      });
+      res.json({ success: true, message: "تم الانتهاء من الكشق بنجاح" });
+    } else {
+      res.json({ success: false, message: "لم تنجح العملية" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+const appointmentCancel = async (req, res) => {
+  try {
+    const { docId, appointmentId } = req.body;
+
+    const appointmentData = await appointmentModel.findById(appointmentId);
+    if (appointmentData && appointmentData.docId === docId) {
+      await appointmentModel.findByIdAndUpdate(appointmentId, {
+        cancelled: true,
+      });
+      res.json({
+        success: true,
+        message: `تم الكشف من قبل الطبيب ${appointmentData.docData.name}`,
+      });
+    } else {
+      res.json({ success: false, message: "لم تنجح العملية" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// doctor api ------> dashbord
+const doctorDashbord = async (req, res) => {
+  try {
+    const { docId } = req.body;
+    const appointments = await appointmentModel.find({ docId });
+
+    let earnings = 0;
+    appointments.map((item) => {
+      if (item.isCompleted || item.payment) {
+        earnings += item.amount;
+      }
+    });
+
+    const patients = [];
+    appointments.map((items) => {
+      if (!patients.includes(items.userId)) {
+        patients.push(items.userId);
+      }
+    });
+
+    const dashData = {
+      earnings,
+      appointments: appointments.length,
+      patients: patients.length,
+      latestAppointments: appointments.reverse().slice(0, 5),
+    };
+
+    res.json({ success: true, dashData });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// api to get doctor info to -------> dashbord
+const doctorProfile = async (req, res) => {
+  try {
+    const { docId } = req.body;
+    const docInfo = await doctorModel.findById(docId).select("-password");
+
+    res.json({ success: true, docInfo });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// api to update doctor info to -------> dashbord
+const doctorProfileUpdate = async (req, res) => {
+  try {
+    const { docId, fees, address, avalibale } = req.body;
+    const docInfo = await doctorModel.findByIdAndUpdate(docId, {
+      fees,
+      address,
+      avalibale,
+    });
+
+    res.json({
+      success: true,
+      message: ` تم تحديث الحساب الشخصي لي   ${docInfo.name}`,
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+export {
+  changeAvalibality,
+  doctorList,
+  loginDoctor,
+  doctorAppointments,
+  appointmentCompleted,
+  appointmentCancel,
+  doctorDashbord,
+  doctorProfile,
+  doctorProfileUpdate,
+};
