@@ -22,7 +22,7 @@ const Navbar = () => {
         <div className="flex items-center gap-2">
           <img className="w-10" src={assets.logo} alt="" />
           <div className="w-22 sm:w-26 cursor-pointer flex flex-col ">
-            <p className="text-2xl font-bold text-[#5f6fff]">سلامتك</p>
+            <p className="text-2xl font-bold text-gray-600">سلامتك</p>
             <p className="text-xs font-medium text-gray-400">راحة . طمأنينة</p>
           </div>
         </div>

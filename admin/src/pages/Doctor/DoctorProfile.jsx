@@ -51,7 +51,9 @@ const DoctorProfile = () => {
         <div className="flex flex-col gap-4 m-5">
           <div className="">
             <img
-              className="bg-[#5f6fff] w-full sm:max-w-64 rounded-lg"
+              className={` ${
+                docInfo.avalibale ? "bg-[#5f6fff]" : "bg-gray-500"
+              } w-full sm:max-w-64 rounded-lg`}
               src={docInfo.image}
               alt=""
             />

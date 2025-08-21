@@ -12,6 +12,8 @@ function DoctorAppointments() {
     completeAppointment,
     loader,
     docInfo,
+    getDoctorProfile,
+    getDoctorDashbord,
   } = useContext(DoctorContext);
 
   const { calculateAge, slotDateFormat, currency } = useContext(AppContext);
@@ -19,6 +21,8 @@ function DoctorAppointments() {
   useEffect(() => {
     if (dtoken) {
       getAppointments();
+      getDoctorDashbord();
+      getDoctorProfile();
     }
   }, [dtoken]);
 

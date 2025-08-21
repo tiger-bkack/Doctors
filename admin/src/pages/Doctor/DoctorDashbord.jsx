@@ -15,6 +15,8 @@ const DoctorDashbord = () => {
     completeAppointment,
     loader,
     docInfo,
+    getDoctorProfile,
+    getAppointments,
   } = useContext(DoctorContext);
   const { currency, slotDateFormat } = useContext(AppContext);
   const navgate = useNavigate();
@@ -22,6 +24,9 @@ const DoctorDashbord = () => {
   useEffect(() => {
     if (dtoken) {
       getDoctorDashbord();
+      getAppointments();
+
+      getDoctorProfile();
     }
   }, [dtoken]);
   return (

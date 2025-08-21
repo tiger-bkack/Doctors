@@ -11,7 +11,7 @@ const Footer = () => {
           <div className=" flex items-center gap-2">
             <img className="w-20" src={assets.logo} alt="" />
             <div className="w-22 mb-5 sm:w-26 cursor-pointer flex flex-col gap-0.5">
-              <p className="text-3xl font-bold text-[#5f6fff]">سلامتك</p>
+              <p className="text-3xl font-bold text-gray-600">سلامتك</p>
               <p className="text-xs font-medium text-gray-500">
                 راحة . طمأنينة
               </p>
