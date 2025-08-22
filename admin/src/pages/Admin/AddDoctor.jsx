@@ -16,6 +16,11 @@ const AddDoctor = () => {
   const [degree, setDegree] = useState("");
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
+  const [startBookedFrom, setStartBookedFrom] = useState("");
+  const [startBookedTo, setStartBookedTo] = useState("");
+  const [booking_period, setBooking_period] = useState("");
+  const [phone, setPhone] = useState("");
+
   const [loader, setLoader] = useState(false);
 
   const { atoken, backendUrl } = useContext(AdminContext);
@@ -40,9 +45,20 @@ const AddDoctor = () => {
       formData.append("experince", experience);
       formData.append("about", about);
       formData.append("fees", fees);
+      formData.append("phone", phone);
+
       formData.append(
         "address",
         JSON.stringify({ line1: address1, line2: address2 })
+      );
+
+      formData.append(
+        "start_booked",
+        JSON.stringify({
+          from: startBookedFrom,
+          to: startBookedTo,
+          booking_period: booking_period,
+        })
       );
 
       // console form
@@ -148,6 +164,18 @@ const AddDoctor = () => {
               />
             </div>
 
+            <div className="flex-1 flex flex-col gap-1 border-gray-300">
+              <p>رقم الهاتف</p>
+              <input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="border rounded px-3 py-2"
+                type="number"
+                placeholder="رقم الهاتف"
+                required
+              />
+            </div>
+
             <div className="flex-1 flex flex-col gap-1">
               <p>سنوات الخبره</p>
               <select
@@ -236,6 +264,34 @@ const AddDoctor = () => {
                 type="text"
                 required
                 placeholder="العنوان الثاني"
+              />
+            </div>
+
+            <div className="flex-1 flex flex-col gap-1">
+              <p>مواعيد العمل:</p>
+              <input
+                value={startBookedFrom}
+                onChange={(e) => setStartBookedFrom(e.target.value)}
+                className="border rounded px-3 py-2 border-gray-300"
+                type="text"
+                required
+                placeholder="من الساعه"
+              />
+              <input
+                value={startBookedTo}
+                onChange={(e) => setStartBookedTo(e.target.value)}
+                className="border rounded px-3 py-2 border-gray-300"
+                type="text"
+                required
+                placeholder="إلي الساعه"
+              />
+              <input
+                value={booking_period}
+                onChange={(e) => setBooking_period(e.target.value)}
+                className="border rounded px-3 py-2 border-gray-300"
+                type="text"
+                required
+                placeholder="مده الكشف الواحد"
               />
             </div>
           </div>

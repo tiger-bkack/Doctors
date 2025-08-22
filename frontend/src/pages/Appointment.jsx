@@ -34,64 +34,63 @@ const Appointment = () => {
     console.log(docInfo);
   };
 
-  const getAvalidablSlats = async () => {
+  const getAvalidablSlats = () => {
+    if (!doctorInfo || !doctorInfo.start_booked) return;
+
     setDocSlots([]);
 
-    //getting current date
+    const { from, to, booking_period } = doctorInfo.start_booked;
+
     let today = new Date();
 
     for (let i = 0; i < 7; i++) {
-      // getting date with index
       let currentDate = new Date(today);
       currentDate.setDate(today.getDate() + i);
 
-      // setting end time of the date index
-      let endTime = new Date();
-      endTime.setDate(today.getDate() + i);
-      endTime.setHours(21, 0, 0, 0);
+      let startTime = new Date(currentDate);
+      startTime.setHours(from, 0, 0, 0);
 
-      //setting hours
-      if (today.getDate() === currentDate.getDate()) {
-        currentDate.setHours(
-          currentDate.getHours() > 10 ? currentDate.getHours() + 1 : 10
-        );
-        currentDate.setMinutes(currentDate.getMinutes() > 30 ? 30 : 0);
-      } else {
-        currentDate.setHours(10);
-        currentDate.setMinutes(0);
+      let endTime = new Date(currentDate);
+      endTime.setHours(to, 0, 0, 0);
+
+      // لو النهاردة → ابدأ من الساعة الحالية على الأقل
+      if (i === 0) {
+        const now = new Date();
+        if (now > startTime) startTime = new Date(now.getTime() + 60 * 1000); // بعد دقيقة
       }
 
       let timeSlote = [];
-      while (currentDate < endTime) {
-        let formatedTime = currentDate.toLocaleTimeString([], {
+      let loopTime = new Date(startTime);
+
+      while (loopTime < endTime) {
+        let formatedTime = loopTime.toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
         });
 
-        let day = currentDate.getDate();
-        let month = currentDate.getMonth() + 1;
-        let year = currentDate.getFullYear();
-        const slotDate = day + "_" + month + "_" + year;
+        let day = loopTime.getDate();
+        let month = loopTime.getMonth() + 1;
+        let year = loopTime.getFullYear();
+        const slotDate = `${day}_${month}_${year}`;
         const slotTime = formatedTime;
 
-        const isSlotAvailable =
-          doctorInfo.slots_booked[slotDate] &&
-          doctorInfo.slots_booked[slotDate].includes(slotTime)
-            ? false
-            : true;
+        // لو مش محجوز بالفعل
+        const isSlotAvailable = doctorInfo.slots_booked?.[slotDate]?.includes(
+          slotTime
+        )
+          ? false
+          : true;
 
         if (isSlotAvailable) {
-          // add slote to array
           timeSlote.push({
-            dateTime: new Date(currentDate),
+            dateTime: new Date(loopTime),
             time: formatedTime,
           });
         }
 
-        // Increment current time by 30 minuts
-        currentDate.setMinutes(currentDate.getMinutes() + 15);
+        // زود مدة الكشف
+        loopTime.setMinutes(loopTime.getMinutes() + booking_period);
       }
-      //console.log(timeSlote);
 
       setDocSlots((prev) => [...prev, timeSlote]);
     }
@@ -137,6 +136,23 @@ const Appointment = () => {
     }
   };
 
+  // تحويل من 24 ساعة إلى 12 ساعة مع AM/PM
+  function to12HourFormat(hour) {
+    // لو جالك نص حوّله رقم
+    hour = Number(hour);
+
+    // حساب AM أو PM
+    let period = hour >= 12 ? "بالليل" : "الصبح";
+
+    // لو الساعة أكبر من 12 رجّعها لصيغة 12
+    let adjustedHour = hour % 12;
+
+    // الساعة 0 يعني 12 (زي 00:00 = 12 AM)
+    adjustedHour = adjustedHour === 0 ? 12 : adjustedHour;
+
+    return `${adjustedHour} ${period}`;
+  }
+
   //console.log(doctorInfo);
   useEffect(() => {
     fatchDocInfo();
@@ -181,6 +197,15 @@ const Appointment = () => {
               <button className="py-0.5 px-2 border text-xs rounded-full">
                 {doctorInfo.experince}
               </button>
+            </div>
+
+            <div className="flex flex-col text-sm  text-gary-500 mt-2 font-medium ">
+              <p className="text-gray-600">رقم الهاتف : {doctorInfo.phone}</p>
+              <p className="text-gray-600">
+                مواعيد العمل من الساعه{" "}
+                {to12HourFormat(doctorInfo.start_booked.from)} إلي{" "}
+                {to12HourFormat(doctorInfo.start_booked.to)}
+              </p>
             </div>
 
             {/* --------Doc about ---------- */}

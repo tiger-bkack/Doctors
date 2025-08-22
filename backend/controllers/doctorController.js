@@ -161,11 +161,13 @@ const doctorProfile = async (req, res) => {
 // api to update doctor info to -------> dashbord
 const doctorProfileUpdate = async (req, res) => {
   try {
-    const { docId, fees, address, avalibale } = req.body;
+    const { docId, fees, address, avalibale, phone, start_booked } = req.body;
     const docInfo = await doctorModel.findByIdAndUpdate(docId, {
       fees,
       address,
       avalibale,
+      phone,
+      start_booked,
     });
 
     res.json({

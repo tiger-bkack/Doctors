@@ -19,6 +19,8 @@ const addDoctor = async (req, res) => {
       about,
       fees,
       address,
+      phone,
+      start_booked,
     } = req.body;
 
     const imageFile = req.file;
@@ -33,14 +35,16 @@ const addDoctor = async (req, res) => {
       !experince ||
       !about ||
       !fees ||
-      !address
+      !address ||
+      !phone ||
+      !start_booked
     ) {
-      return req.json({ success: false, message: "هنام بعض الحقول مفقودة" });
+      return res.json({ success: false, message: "هنام بعض الحقول مفقودة" });
     }
 
     // check emali validation format
     if (!validator.isEmail(email)) {
-      return req.json({
+      return res.json({
         success: false,
         message: "من فضلك أدخل بريدألكتروني صالح",
       });
@@ -48,14 +52,22 @@ const addDoctor = async (req, res) => {
 
     // adding stroning password
     if (password.length < 8) {
-      return req.json({
-        success: true,
+      return res.json({
+        success: false,
         message: "من فضلك أدخل كله سر  أكبر من 8  أحرف ",
       });
     }
     // hashing password to save in data base
     const slot = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, slot);
+
+    // adding phone number
+    if (password.length > 11) {
+      return res.json({
+        success: false,
+        message: "من فضلك أدخل رقم هاتف بطريقه صحيحة",
+      });
+    }
 
     // upload image in cloudinary
     const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
@@ -75,6 +87,8 @@ const addDoctor = async (req, res) => {
       experince,
       about,
       fees,
+      phone,
+      start_booked: JSON.parse(start_booked),
       address: JSON.parse(address),
       date: Date.now(),
     };

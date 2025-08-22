@@ -14,12 +14,23 @@ const DoctorProfile = () => {
 
   const [isEdit, setIsEdit] = useState(false);
 
+  const convarTo24Hour = (hour) => {
+    let h = parseInt(hour);
+
+    if (isNaN(h)) return hour;
+    if (h >= 1 && h <= 7) h += 12;
+
+    return h;
+  };
+
   const updateProfile = async () => {
     try {
       const updateData = {
         address: docInfo.address,
         fees: docInfo.fees,
         avalibale: docInfo.avalibale,
+        start_booked: docInfo.start_booked,
+        phone: docInfo.phone,
       };
 
       const { data } = await axios.post(
@@ -99,6 +110,100 @@ const DoctorProfile = () => {
                 )}
               </span>
             </p>
+
+            <p className="text-gray-600 font-medium mt-4">
+              رقم الهاتف :
+              <span className="text-gray-800">
+                {isEdit ? (
+                  <input
+                    type="number"
+                    onChange={(e) =>
+                      setDocInfo((prev) => ({ ...prev, phone: e.target.value }))
+                    }
+                    value={docInfo.phone}
+                  />
+                ) : (
+                  docInfo.phone
+                )}
+              </span>
+            </p>
+
+            <div className="flex flex-col gap-2 py-2">
+              <p className="text-gray-600 font-medium mt-4">مواعيد الحجز:</p>
+              <p className="text-sm">
+                <div className="flex gap-2">
+                  <p className="text-gray-800">مواعيد العمل:</p>
+                  {isEdit ? (
+                    <input
+                      value={docInfo.start_booked.from}
+                      onChange={(e) => {
+                        setDocInfo((prev) => ({
+                          ...prev,
+                          start_booked: {
+                            ...prev.start_booked,
+                            from: e.target.value,
+                          },
+                        }));
+                      }}
+                      placeholder="موعد البداء العمل"
+                      type="number"
+                      name=""
+                      id=""
+                    />
+                  ) : docInfo.start_booked.from ? (
+                    <p>{docInfo.start_booked.from} AM</p>
+                  ) : (
+                    "8 صباحا"
+                  )}{" "}
+                </div>
+                <br />
+                <div className=" flex gap-2">
+                  <p className="text-gray-800">موعد الانتهاء: </p>
+                  {isEdit ? (
+                    <input
+                      type="number"
+                      value={docInfo.start_booked.to}
+                      onChange={(e) => {
+                        setDocInfo((prev) => ({
+                          ...prev,
+                          start_booked: {
+                            ...prev.start_booked,
+                            to: convarTo24Hour(e.target.value),
+                          },
+                        }));
+                      }}
+                    />
+                  ) : docInfo.start_booked.to ? (
+                    <p>{docInfo.start_booked.to} PM</p>
+                  ) : (
+                    "9 PM"
+                  )}
+                </div>
+                <br />
+                <div className=" flex gap-2">
+                  <p className="text-gray-800">مده الكشف :</p>
+                  {isEdit ? (
+                    <input
+                      type="number"
+                      value={docInfo.start_booked.booking_period}
+                      onChange={(e) => {
+                        setDocInfo((prev) => ({
+                          ...prev,
+                          start_booked: {
+                            ...prev.start_booked,
+                            booking_period: e.target.value,
+                          },
+                        }));
+                      }}
+                    />
+                  ) : docInfo.start_booked.booking_period ? (
+                    <p>{docInfo.start_booked.booking_period} دقيقه</p>
+                  ) : (
+                    "15 دقيقه"
+                  )}
+                </div>
+              </p>
+            </div>
 
             <div className="flex gap-2 py-2">
               <p>العنوان:</p>

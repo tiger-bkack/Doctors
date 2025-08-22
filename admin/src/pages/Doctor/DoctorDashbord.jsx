@@ -23,8 +23,8 @@ const DoctorDashbord = () => {
 
   useEffect(() => {
     if (dtoken) {
-      getDoctorDashbord();
       getAppointments();
+      getDoctorDashbord();
 
       getDoctorProfile();
     }
