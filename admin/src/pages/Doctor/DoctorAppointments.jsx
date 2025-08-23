@@ -2,6 +2,7 @@ import React, { useContext, useEffect } from "react";
 import { DoctorContext } from "../../context/DoctorContext";
 import { AppContext } from "../../context/AppContext";
 import { assets } from "../../assets/assets";
+import { useNavigate } from "react-router-dom";
 
 function DoctorAppointments() {
   const {
@@ -17,6 +18,8 @@ function DoctorAppointments() {
   } = useContext(DoctorContext);
 
   const { calculateAge, slotDateFormat, currency } = useContext(AppContext);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (dtoken) {
@@ -45,8 +48,9 @@ function DoctorAppointments() {
 
         {appointment.map((items, index) => (
           <div
+            onClick={() => navigate(`/add-report/${items._id}`)}
             key={index}
-            className="flex flex-wrap justify-between max-sm:gap-5 text-base sm:grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] gap-1 items-center py-3 px-6 border-b border-gray-200 text-gray-500 hover:bg-gray-50 transition-all duration-150 "
+            className="flex flex-wrap justify-between max-sm:gap-5 text-base sm:grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] gap-1 items-center py-3 px-6 border-b border-gray-200 text-gray-500 hover:bg-gray-50 transition-all duration-150 cursor-pointer "
           >
             <p className="hidden md:block">{index + 1}</p>
             <div className="flex items-center gap-3">

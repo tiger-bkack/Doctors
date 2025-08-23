@@ -1,9 +1,32 @@
+import axios from "axios";
+import { toast } from "react-toastify";
+
 import React, { useContext, useEffect } from "react";
 import { AdminContext } from "../../context/AdminContext";
 
 const DoctorsList = () => {
-  const { atoken, getDoctorList, doctors, changeAvalibilty } =
+  const { atoken, getDoctorList, doctors, changeAvalibilty, backendUrl } =
     useContext(AdminContext);
+
+  const deleteDoctor = async (docId) => {
+    try {
+      const { data } = await axios.delete(
+        backendUrl + "/api/admin/delete-doctor",
+        { docId },
+        {
+          headers: { atoken },
+        }
+      );
+      if (data.success) {
+        toast.success(data.message);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
 
   useEffect(() => {
     if (atoken) {
@@ -40,6 +63,15 @@ const DoctorsList = () => {
                   checked={items.avalibale}
                 />
                 <p>متاج</p>
+              </div>
+              <div className="">
+                <button
+                  onClick={() => deleteDoctor(items._id)}
+                  className="mt-3 py-0.5 px-3 text-sm text-red-500 border rounded-2xl cursor-pointer hover:bg-red-500 hover:text-white transition-all duration-150
+                }"
+                >
+                  حذف الطبيب
+                </button>
               </div>
             </div>
           </div>

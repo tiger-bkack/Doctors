@@ -14,7 +14,7 @@ const Sidebar = () => {
           <NavLink
             className={({ isActive }) =>
               `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${
-                isActive ? "bg-[#f2f3ff] border-r-4 border-[#5f6fff]" : ""
+                isActive ? "bg-[#f2f3ff] border-l-4 border-[#5f6fff]" : ""
               }`
             }
             to={"/admin-dashbord"}
@@ -25,7 +25,7 @@ const Sidebar = () => {
           <NavLink
             className={({ isActive }) =>
               `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${
-                isActive ? "bg-[#f2f3ff] border-r-4 border-[#5f6fff]" : ""
+                isActive ? "bg-[#f2f3ff] border-l-4 border-[#5f6fff]" : ""
               }`
             }
             to={"/all-appointment"}
@@ -36,7 +36,7 @@ const Sidebar = () => {
           <NavLink
             className={({ isActive }) =>
               `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${
-                isActive ? "bg-[#f2f3ff] border-r-4 border-[#5f6fff]" : ""
+                isActive ? "bg-[#f2f3ff] border-l-4 border-[#5f6fff]" : ""
               }`
             }
             to={"/add-doctor"}
@@ -48,12 +48,24 @@ const Sidebar = () => {
           <NavLink
             className={({ isActive }) =>
               `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${
-                isActive ? "bg-[#f2f3ff] border-r-4 border-[#5f6fff]" : ""
+                isActive ? "bg-[#f2f3ff] border-l-4 border-[#5f6fff]" : ""
               }`
             }
             to={"/doctor-list"}
           >
             <img src={assets.people_icon} alt="" />
+            <p className="hidden md:block">قأمة الأطباء</p>
+          </NavLink>
+
+          <NavLink
+            className={({ isActive }) =>
+              `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${
+                isActive ? "bg-[#f2f3ff] border-l-4 border-[#5f6fff]" : ""
+              }`
+            }
+            to={"/add-report"}
+          >
+            <img src={assets.home_icon} alt="" />
             <p className="hidden md:block">قأمة الأطباء</p>
           </NavLink>
         </ul>
@@ -94,6 +106,29 @@ const Sidebar = () => {
             <img src={assets.people_icon} alt="" />
             <p className="hidden md:block">الحساب الشخصي</p>
           </NavLink>
+          <NavLink
+            className={({ isActive }) =>
+              `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${
+                isActive ? "bg-[#f2f3ff] border-r-4 border-[#5f6fff]" : ""
+              }`
+            }
+            to={"/reposts"}
+          >
+            <img src={assets.people_icon} alt="" />
+            <p className="hidden md:block">كل التقارير</p>
+          </NavLink>
+
+          {/* <NavLink
+            className={({ isActive }) =>
+              `flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer ${
+                isActive ? "bg-[#f2f3ff] border-l-4 border-[#5f6fff]" : ""
+              }`
+            }
+            to={"/add-report"}
+          >
+            <img src={assets.home_icon} alt="" />
+            <p className="hidden md:block">أضافه تقارير المرضي</p>
+          </NavLink> */}
         </ul>
       )}
     </div>

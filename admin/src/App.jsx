@@ -18,6 +18,9 @@ import { useState } from "react";
 import LoaderStartApp from "./components/LoaderStartApp";
 import NotFound from "./pages/NotFound";
 
+import Reports from "./pages/Doctor/Reports";
+import AllReports from "./pages/Doctor/AllReports";
+
 const App = () => {
   const { atoken } = useContext(AdminContext);
   const { dtoken } = useContext(DoctorContext);
@@ -51,6 +54,10 @@ const App = () => {
               element={<DoctorAppointments />}
             />
             <Route path="/doctor-profile" element={<DoctorProfile />} />
+            <Route path="/add-report/:appointmentId" element={<Reports />} />
+            <Route path="/add-report" element={<Reports />} />
+            <Route path="/reposts" element={<AllReports />} />
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
@@ -65,6 +72,8 @@ const App = () => {
         <ToastContainer />
         <Navbar />
         <div className="flex items-start">
+          <Routes></Routes>
+
           <Sidebar />
           <Routes>
             {/* Admin Router */}
@@ -73,6 +82,9 @@ const App = () => {
             <Route path="/all-appointment" element={<Appointments />} />
             <Route path="/add-doctor" element={<AddDoctor />} />
             <Route path="/doctor-list" element={<DoctorsList />} />
+            <Route path="/add-report/:appointmentId" element={<Reports />} />
+            <Route path="/add-report/" element={<Reports />} />
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

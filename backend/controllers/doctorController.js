@@ -2,6 +2,7 @@ import doctorModel from "../models/doctorModel.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import appointmentModel from "../models/appointmentModel.js";
+import reportModel from "../models/reportModel.js";
 
 const changeAvalibality = async (req, res) => {
   try {
@@ -179,6 +180,92 @@ const doctorProfileUpdate = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+
+// api to add report to user from dashbord
+const addReport = async (req, res) => {
+  try {
+    const {
+      appointmentId,
+      complaint,
+      examination,
+      diagnosis,
+      treatment,
+      notes,
+      nextVisit,
+    } = req.body;
+
+    // Check required fields
+    if (!complaint || !examination || !diagnosis || !treatment) {
+      return res.json({
+        success: false,
+        message: "All required fields must be provided",
+      });
+    }
+
+    // Check appointment exists
+    const appointment = await appointmentModel.findById(appointmentId);
+    if (!appointment) {
+      return res.json({ success: false, message: "Appointment not found" });
+    }
+
+    if (!appointment.isCompleted || appointment.cancelled) {
+      return res.json({
+        success: false,
+        message: " لايمكن كتابه تقرير لماريض ألغي الكشف أو لم يكمل الكشف",
+      });
+    }
+
+    const todayVisit = new Date(appointment.slotDate);
+    const newNextVisit = new Date(nextVisit);
+
+    if (newNextVisit <= todayVisit) {
+      res.status(400).json({
+        success: false,
+        message: "لا يجود أختيار موعد قبل يوم الكشف أو في نفس اليوم",
+      });
+    }
+
+    // Prepare report data
+    const reportData = {
+      complaint,
+      examination,
+      diagnosis,
+      treatment,
+      notes,
+      nextVisit,
+      userId: appointment.userId,
+      docId: appointment.docId,
+      userData: appointment.userData,
+      docData: appointment.docData,
+      appointmentData: appointment,
+      appointmentId,
+    };
+
+    // Save report
+    const newReport = new reportModel(reportData);
+    await newReport.save();
+
+    res.json({
+      success: true,
+      message: "Report Added successfully",
+      report: newReport,
+    });
+  } catch (error) {
+    console.log(error.message);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+//api get all report to doctor dashbord
+const allReport = async (req, res) => {
+  try {
+    const reports = await reportModel.find({});
+    res.json({ success: true, reports });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
 export {
   changeAvalibality,
   doctorList,
@@ -189,4 +276,6 @@ export {
   doctorDashbord,
   doctorProfile,
   doctorProfileUpdate,
+  addReport,
+  allReport,
 };

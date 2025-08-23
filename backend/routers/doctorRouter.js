@@ -8,6 +8,8 @@ import {
   doctorDashbord,
   doctorProfile,
   doctorProfileUpdate,
+  addReport,
+  allReport,
 } from "../controllers/doctorController.js";
 import authDoctor from "../middlewares/authDoctor.js";
 
@@ -28,4 +30,8 @@ doctorRouter.post("/dashpord", authDoctor, doctorDashbord);
 doctorRouter.post("/profile", authDoctor, doctorProfile);
 
 doctorRouter.post("/update-profile", authDoctor, doctorProfileUpdate);
+
+doctorRouter.post("/add-report", authDoctor, addReport);
+
+doctorRouter.post("/reposts", authDoctor, allReport);
 export default doctorRouter;

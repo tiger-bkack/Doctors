@@ -14,6 +14,7 @@ const DoctorContextProvider = (props) => {
   const [appointment, setAppointment] = useState([]);
   const [dashData, setDashData] = useState(false);
   const [docInfo, setDocInfo] = useState(false);
+  const [reportData, setReportData] = useState([]);
 
   const getAppointments = async () => {
     try {
@@ -120,6 +121,23 @@ const DoctorContextProvider = (props) => {
     }
   };
 
+  const getAllReport = async () => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/doctor/reposts",
+        {},
+        { headers: { dtoken } }
+      );
+      if (data.success) {
+        console.log(data.reports);
+        setReportData(data.reports);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
   const value = {
     dtoken,
     setDtoken,
@@ -136,6 +154,8 @@ const DoctorContextProvider = (props) => {
     getDoctorProfile,
     docInfo,
     setDocInfo,
+    getAllReport,
+    reportData,
   };
 
   return (

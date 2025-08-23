@@ -191,6 +191,26 @@ const adminDashbord = async (req, res) => {
   }
 };
 
+// API to remove doctors from admin dashbord
+const removeDoctor = async (req, res) => {
+  try {
+    const { docId } = req.body;
+    await doctorModel.findByIdAndDelete(docId);
+
+    // const { docId } = req.body;
+    // const doctorId = await doctorModel.findById(docId);
+    // if (doctorId && doctorId.docId === docId) {
+    //   await doctorModel.findByIdAndDelete(docId);
+    //   res.json({ success: true, message: "Doctor deleted successfully " });
+    // } else {
+    //   res.json({ success: false, message: "someting wrong" });
+    // }
+  } catch (error) {
+    console.log(error);
+    res.json({ success: fales, message: error.message });
+  }
+};
+
 export {
   addDoctor,
   loginAdmin,
@@ -198,4 +218,5 @@ export {
   getAllAppointment,
   cancelAppointment,
   adminDashbord,
+  removeDoctor,
 };
