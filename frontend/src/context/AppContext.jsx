@@ -14,6 +14,7 @@ const AppContextProvider = (props) => {
   );
   const [userData, setUserData] = useState(false);
   const [loader, setLoader] = useState(false);
+  const [reports, setReports] = useState([]);
 
   const getDoctorList = async () => {
     try {
@@ -49,6 +50,26 @@ const AppContextProvider = (props) => {
     }
   };
 
+  const getAllReportsFromUser = async () => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/user/reports",
+        {},
+        { headers: { token } }
+      );
+
+      if (data.success) {
+        console.log(data.reports);
+        setReports(data.reports);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error.message);
+      toast.error(error.message);
+    }
+  };
+
   useEffect(() => {
     if (token) {
       loadUserProfileData();
@@ -67,6 +88,8 @@ const AppContextProvider = (props) => {
     setUserData,
     loadUserProfileData,
     loader,
+    getAllReportsFromUser,
+    reports,
   };
 
   return (

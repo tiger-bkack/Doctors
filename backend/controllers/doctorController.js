@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import appointmentModel from "../models/appointmentModel.js";
 import reportModel from "../models/reportModel.js";
+import userModel from "../models/userModel.js";
 
 const changeAvalibality = async (req, res) => {
   try {
@@ -194,24 +195,24 @@ const addReport = async (req, res) => {
       nextVisit,
     } = req.body;
 
-    // Check required fields
     if (!complaint || !examination || !diagnosis || !treatment) {
-      return res.json({
+      return res.status(400).json({
         success: false,
         message: "All required fields must be provided",
       });
     }
 
-    // Check appointment exists
     const appointment = await appointmentModel.findById(appointmentId);
     if (!appointment) {
-      return res.json({ success: false, message: "Appointment not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Appointment not found" });
     }
 
     if (!appointment.isCompleted || appointment.cancelled) {
-      return res.json({
+      return res.status(400).json({
         success: false,
-        message: " لايمكن كتابه تقرير لماريض ألغي الكشف أو لم يكمل الكشف",
+        message: "لايمكن كتابة تقرير لمريض ألغى الكشف أو لم يكمل الكشف",
       });
     }
 
@@ -219,18 +220,17 @@ const addReport = async (req, res) => {
     const newNextVisit = new Date(nextVisit);
 
     if (newNextVisit <= todayVisit) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
-        message: "لا يجود أختيار موعد قبل يوم الكشف أو في نفس اليوم",
+        message: "لا يجوز اختيار موعد قبل يوم الكشف أو في نفس اليوم",
       });
     }
 
-    // Prepare report data
     const reportData = {
       complaint,
       examination,
       diagnosis,
-      treatment,
+      treatment: Array.isArray(treatment) ? treatment : JSON.parse(treatment),
       notes,
       nextVisit,
       userId: appointment.userId,
@@ -241,18 +241,17 @@ const addReport = async (req, res) => {
       appointmentId,
     };
 
-    // Save report
     const newReport = new reportModel(reportData);
     await newReport.save();
 
-    res.json({
+    res.status(201).json({
       success: true,
-      message: "Report Added successfully",
+      message: "Report added successfully",
       report: newReport,
     });
   } catch (error) {
     console.log(error.message);
-    res.json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -261,6 +260,59 @@ const allReport = async (req, res) => {
   try {
     const reports = await reportModel.find({});
     res.json({ success: true, reports });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// api to get user reports from the doctor
+const getUserReportWithDoctor = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const docId = req.docId;
+    const userReport = await reportModel.find({ userId, docId });
+
+    if (!userReport || userReport.length === 0) {
+      return res.json({ success: false, message: "لا يوجد تقارير" });
+    }
+    res.status(200).json({ success: true, userReport });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+//api to search about user from doctor dachbord
+
+const searchUser = async (req, res) => {
+  try {
+    const { q } = req.body;
+    const docId = req.docId; // middleware
+
+    if (!q || !docId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "query and doctor required" });
+    }
+
+    const appointments = await appointmentModel
+      .find({
+        docId,
+        $or: [
+          { "userData.name": { $regex: q, $options: "i" } },
+          { "userData.nationalId": { $regex: q, $options: "i" } },
+          { "userData.phone": { $regex: q.replace(/\s/g, ""), $options: "i" } },
+        ],
+      })
+      .limit(10);
+
+    const users = appointments.map((a) => a.userData);
+    const uniqueUsers = Array.from(
+      new Map(users.map((u) => [u._id || u.id || u.phone, u])).values()
+    );
+
+    res.json({ success: true, users: uniqueUsers });
   } catch (error) {
     console.log(error);
     res.status(400).json({ success: false, message: error.message });
@@ -278,4 +330,6 @@ export {
   doctorProfileUpdate,
   addReport,
   allReport,
+  getUserReportWithDoctor,
+  searchUser,
 };

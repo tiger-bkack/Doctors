@@ -80,6 +80,12 @@ const Navbar = () => {
                   حجوزاتي
                 </p>
                 <p
+                  onClick={() => navgate("/reports")}
+                  className="hover:text-black cursor-pointer"
+                >
+                  تقاريري
+                </p>
+                <p
                   onClick={logout}
                   className="hover:text-red-800 cursor-pointer text-red-700"
                 >

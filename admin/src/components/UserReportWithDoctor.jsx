@@ -1,16 +1,46 @@
-import React, { useContext, useEffect, useRef } from "react";
-import { DoctorContext } from "../../context/DoctorContext";
-import { assets } from "../../assets/assets";
-import { AppContext } from "../../context/AppContext";
-import { Button } from "flowbite-react";
+import React, { useContext, useEffect, useState, useRef } from "react";
+import { DoctorContext } from "../context/DoctorContext";
+import { AppContext } from "../context/AppContext";
+import axios from "axios";
+import { toast } from "react-toastify";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { Button } from "flowbite-react";
+import { assets } from "../assets/assets";
 
-const AllReports = () => {
-  const { getAllReport, dtoken, reportData } = useContext(DoctorContext);
+const UserReportWithDoctor = () => {
+  const { dtoken, backendUrl, getUserReportWithDoctor, reportData } =
+    useContext(DoctorContext);
   const { calculateAge, slotDateFormat } = useContext(AppContext);
 
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+
   const reportRefs = useRef([]);
+
+  useEffect(() => {
+    if (!query) return setResults([]);
+
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const { data } = await axios.post(
+          `${backendUrl}/api/doctor/search`,
+          { q: query },
+          { headers: { dtoken } }
+        );
+        setResults(data.success ? data.users || [] : []);
+      } catch (err) {
+        console.error(err);
+        toast.error(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [query, dtoken, backendUrl]);
 
   const handlePrint = async (element) => {
     if (!element) return;
@@ -22,27 +52,47 @@ const AllReports = () => {
       unit: "px",
       format: "a4",
     });
+    const imgProps = pdf.getImageProperties(data);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-    const image = pdf.getImageProperties(data);
-    const pdfWidht = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (image.height * pdfWidht) / image.width;
-
-    pdf.addImage(data, "PNG", 0, 0, pdfWidht, pdfHeight);
+    pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
     pdf.save("report.pdf");
   };
 
-  useEffect(() => {
-    if (dtoken) {
-      getAllReport();
-    }
-  }, [dtoken]);
-
   return (
-    reportData && (
-      <div dir="ltr" className="w-full max-w-6xl m-5">
-        <p className="mb-3 font-medium text-lg ">Reports</p>
+    <div dir="ltr" className="w-full px-5 max-w-6xl m-5">
+      {/* Search */}
+      <form
+        onSubmit={(e) => e.preventDefault()}
+        className="flex flex-col items-center max-w-md mx-auto relative"
+      >
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="ابحث عن المريض بالاسم، الرقم القومي أو الهاتف"
+          className="border border-gray-300 px-4 py-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+        {loading && <p className="mt-2 text-gray-500 text-sm">جاري البحث...</p>}
+        {results.length > 0 && (
+          <ul className="absolute top-12 w-full bg-white border rounded-md max-h-52 overflow-y-auto shadow-lg z-50">
+            {results.map((user) => (
+              <li
+                key={user._id}
+                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                onClick={() => getUserReportWithDoctor(user._id)}
+              >
+                {user.name} - {user.nationalId || user.phone}
+              </li>
+            ))}
+          </ul>
+        )}
+      </form>
 
-        <div className="max-h-[95vh] min-h-[90vh] overflow-y-scroll">
+      {/* Reports */}
+      <section className="mt-8">
+        <div className="max-h-[90vh] overflow-y-auto space-y-6">
           {reportData.map((items, index) => (
             <div
               ref={(el) => (reportRefs.current[index] = el)}
@@ -59,7 +109,7 @@ const AllReports = () => {
             >
               {/* Header */}
               <div>
-                <div className="text-center mb-4 border-b pb-2">
+                <div className="text-center mb-4  pb-3 ">
                   <div className="flex items-center justify-center gap-2">
                     <img className="w-20" src={assets.logo} alt="logo" />
                     <div>
@@ -156,7 +206,7 @@ const AllReports = () => {
                   </div>
                   <div className="">
                     <Button
-                      className="no-print"
+                      className=""
                       onClick={() => handlePrint(reportRefs.current[index])}
                     >
                       Print Report
@@ -172,9 +222,9 @@ const AllReports = () => {
             </div>
           ))}
         </div>
-      </div>
-    )
+      </section>
+    </div>
   );
 };
 
-export default AllReports;
+export default UserReportWithDoctor;

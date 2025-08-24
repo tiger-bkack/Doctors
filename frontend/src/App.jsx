@@ -16,6 +16,7 @@ import PaymentCancel from "./pages/PaymentCancel";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import LoaderStartApp from "./components/LoaderStartApp";
 import NotFound from "../src/pages/NotFound";
+import Reports from "./pages/Reports";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -43,6 +44,7 @@ const App = () => {
         <Route path="/profile" element={<MyProfile />} />
         <Route path="/my-appointments" element={<MyAppointments />} />
         <Route path="/appointment/:docId" element={<Appointment />} />
+        <Route path="/reports" element={<Reports />} />
         <Route path="*" element={<NotFound />} />
 
         {/* ✅ صفحات الدفع */}

@@ -1,5 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap");
 @import "tailwindcss";
+@plugin "flowbite-react/plugin/tailwindcss";
+@source "../.flowbite-react/class-list.json";
 
 ::-webkit-scrollbar {
   @apply hidden;
@@ -7,4 +9,43 @@
 
 * {
   font-family: "Cairo", sans-serif;
+}
+/* تصميم صفحة A4 */
+.a4-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 15mm 20mm;
+  margin: 10px auto;
+  background: white;
+  box-sizing: border-box;
+  position: relative;
+  font-family: "Arial", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* إطار خفيف */
+.a4-page .report-body {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 15px;
+  margin-top: 10px;
+}
+
+/* عناوين أقسام */
+.section-title {
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #444;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* أخفاء زرار الطباعة من PDF */
+.no-print {
+  display: none !important;
 }

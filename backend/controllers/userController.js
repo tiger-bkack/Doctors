@@ -6,6 +6,7 @@ import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/doctorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
 import Stripe from "stripe";
+import reportModel from "../models/reportModel.js";
 
 // user login
 const registerUser = async (req, res) => {
@@ -99,13 +100,39 @@ const userProfile = async (req, res) => {
 
 const updateProfileUserInfo = async (req, res) => {
   try {
-    const { userId, name, phone, address, gender, dob } = req.body;
-    const imageFile = req.file; // ممكن تبقى undefined
+    const {
+      userId,
+      name,
+      phone,
+      address,
+      gender,
+      dob,
+      nationality,
+      nationaliId,
+    } = req.body;
+    const imageFile = req.file;
 
-    if (!name || !phone || !gender || !dob) {
+    if (!name || !phone || !gender || !dob || !nationality || !nationaliId) {
       return res.json({
         success: false,
         message: "هناك بعض البيانات المفقودة",
+      });
+    }
+
+    // التحقق من طول الرقم القومي
+    if (nationaliId.length !== 14) {
+      return res.json({
+        success: false,
+        message: "ادخل رقم قومي صحيح مكون من 14 رقم",
+      });
+    }
+
+    // التحقق من وجود الرقم القومي عند مستخدم آخر
+    const existingUser = await userModel.findOne({ nationaliId });
+    if (existingUser && existingUser._id.toString() !== userId) {
+      return res.json({
+        success: false,
+        message: "هذا الرقم القومي مستخدم بالفعل",
       });
     }
 
@@ -115,9 +142,10 @@ const updateProfileUserInfo = async (req, res) => {
       address: JSON.parse(address),
       dob,
       gender,
+      nationality,
+      nationaliId,
     });
 
-    // لو فيه صورة جديدة ارفعها
     if (imageFile) {
       const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
         resource_type: "image",
@@ -127,7 +155,7 @@ const updateProfileUserInfo = async (req, res) => {
       await userModel.findByIdAndUpdate(userId, { image: imageUrl });
     }
 
-    res.json({ success: true, message: "تم تحديث الحساب الشخصي بنجاح " });
+    res.json({ success: true, message: "تم تحديث الحساب الشخصي بنجاح" });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
@@ -249,6 +277,22 @@ const cancelAppointment = async (req, res) => {
   }
 };
 
+// get all reports
+const userReports = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const reports = await reportModel.find({ id: userId });
+
+    if (reports.length === 0 || !reports) {
+      res.json({ success: false, message: "لا يوجد اي تقارير حتي الان" });
+    }
+
+    res.json({ success: true, reports });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 export {
   registerUser,
   loginUser,
@@ -257,4 +301,5 @@ export {
   bookAppointment,
   listAppointment,
   cancelAppointment,
+  userReports,
 };

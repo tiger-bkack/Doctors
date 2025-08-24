@@ -12,7 +12,13 @@ const reportSchema = mongoose.Schema({
   complaint: { type: String, required: true },
   examination: { type: String, required: true },
   diagnosis: { type: String, required: true },
-  treatment: { type: String, required: true },
+  treatment: [
+    {
+      name: { type: String, required: true },
+      dosage: { type: String },
+      duration: { type: String },
+    },
+  ],
   notes: { type: String },
   nextVisit: { type: Date },
   createdAt: { type: Date, default: Date.now },

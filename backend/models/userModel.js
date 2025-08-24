@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema({
   dob: { type: String, default: "Not selected" },
   phone: { type: String, default: "00000000000" },
   nationality: { type: String, default: "Egypt" },
+  nationaliId: { type: Number, required: true, unique: true },
 });
 
 const userModel = mongoose.models.user || mongoose.model("user", userSchema);

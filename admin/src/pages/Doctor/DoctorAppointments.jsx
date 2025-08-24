@@ -1,10 +1,14 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { DoctorContext } from "../../context/DoctorContext";
 import { AppContext } from "../../context/AppContext";
 import { assets } from "../../assets/assets";
-import { useNavigate } from "react-router-dom";
-
+import { Button, Modal } from "flowbite-react";
+import AddReport from "../../components/AddReport";
+import { Dropdown, DropdownItem } from "flowbite-react";
 function DoctorAppointments() {
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+
   const {
     getAppointments,
     appointment,
@@ -19,8 +23,6 @@ function DoctorAppointments() {
 
   const { calculateAge, slotDateFormat, currency } = useContext(AppContext);
 
-  const navigate = useNavigate();
-
   useEffect(() => {
     if (dtoken) {
       getAppointments();
@@ -29,14 +31,20 @@ function DoctorAppointments() {
     }
   }, [dtoken]);
 
+  // فتح المودال وربط البيانات
+  const handleOpenModal = (items) => {
+    setSelectedAppointment(items);
+    setOpenModal(true);
+  };
+
   return (
     <div className="w-full max-w-6xl m-5">
       <p className="mb-3 font-medium text-lg">
-        {`كل الحجوزات الخاصه بي   ${docInfo.name}`}
+        {`كل الحجوزات الخاصه بي ${docInfo.name} `}
       </p>
 
       <div className="bg-white border border-gray-200 text-sm max-h-[80vh] min-h-[50vh] overflow-y-scroll">
-        <div className="max-sm:hidden grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] gap-1 py-3 px-6 border-b border-gray-200">
+        <div className="max-sm:hidden grid grid-cols-[0.5fr_1fr_1fr_0.5fr_2fr_1fr_1.5fr] gap-1 py-3 px-6 border-b border-gray-200">
           <p className="hidden md:block">#</p>
           <p>المريض</p>
           <p>حاله الدفع</p>
@@ -48,28 +56,29 @@ function DoctorAppointments() {
 
         {appointment.map((items, index) => (
           <div
-            onClick={() => navigate(`/add-report/${items._id}`)}
-            key={index}
-            className="flex flex-wrap justify-between max-sm:gap-5 text-base sm:grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] gap-1 items-center py-3 px-6 border-b border-gray-200 text-gray-500 hover:bg-gray-50 transition-all duration-150 cursor-pointer "
+            key={items._id}
+            className="flex flex-wrap justify-between max-sm:gap-5 text-base sm:grid grid-cols-[0.5fr_1fr_1fr_0.5fr_2fr_1fr_1.5fr] gap-1 items-center py-3 px-6 border-b border-gray-200 text-gray-500 hover:bg-gray-50 transition-all duration-150  "
           >
             <p className="hidden md:block">{index + 1}</p>
             <div className="flex items-center gap-3">
               <img
                 className="w-10 h-10 rounded-full"
                 src={items.userData.image}
-                alt={items.userData.image}
-              />{" "}
+                alt={items.userData.name}
+              />
               <p>{items.userData.name}</p>
             </div>
-            <div className="">
+
+            <div>
               <p
                 className={`text-xs inline border ${
-                  items.payment ? "border-[#5f6fff]" : "border-[#ff8c6f] "
-                }  px-2 rounded-full`}
+                  items.payment ? "border-[#5f6fff]" : "border-[#ff8c6f]"
+                } px-2 rounded-full`}
               >
                 {items.payment ? "أون لاين" : "كاش"}
               </p>
             </div>
+
             <p className="hidden md:block">
               {calculateAge(items.userData.dob)}
             </p>
@@ -83,27 +92,52 @@ function DoctorAppointments() {
             {items.cancelled ? (
               <p className="text-red-400 font-medium text-sm">تم ألغاء الكشف</p>
             ) : items.isCompleted ? (
-              <p className="text-green-500 text-sm font-medium">تم الكشف</p>
+              <div className="flex items-center justify-center gap-4">
+                <p className="text-green-500 text-sm font-medium">تم الكشف</p>
+                <Dropdown inline className="px-3 py-2">
+                  <DropdownItem
+                    onClick={() => {
+                      handleOpenModal(items);
+                    }}
+                  >
+                    أضافه تقرير
+                  </DropdownItem>
+                  <DropdownItem>Settings</DropdownItem>
+                  <DropdownItem>Earnings</DropdownItem>
+                  <DropdownItem>Sign out</DropdownItem>
+                </Dropdown>
+              </div>
             ) : (
-              <div className=" flex gap-0.5">
-                {loader ? "جاري التنفيز" : ""}
+              <div className="flex gap-0.5 relative group">
+                {loader ? "جاري التنفيذ..." : ""}
                 <img
                   onClick={() => cancelAppointment(items._id)}
                   className="w-10 cursor-pointer"
                   src={assets.cancel_icon}
-                  alt=""
+                  alt="cancel"
                 />
                 <img
                   onClick={() => completeAppointment(items._id)}
                   className="w-10 cursor-pointer"
                   src={assets.tick_icon}
-                  alt=""
+                  alt="complete"
                 />
               </div>
             )}
           </div>
         ))}
       </div>
+
+      {/* مودال واحد بس مربوط بالـ selectedAppointment */}
+      <Modal size="5xl" show={openModal} onClose={() => setOpenModal(false)}>
+        {selectedAppointment && (
+          <AddReport
+            setOpenModal={setOpenModal}
+            appointmentId={selectedAppointment._id}
+            items={selectedAppointment}
+          />
+        )}
+      </Modal>
     </div>
   );
 }

@@ -23,6 +23,8 @@ const MyProfile = () => {
       formData.append("phone", userData.phone);
       formData.append("dob", userData.dob);
       formData.append("gender", userData.gender);
+      formData.append("nationaliId", userData.nationaliId);
+      formData.append("nationality", userData.nationality);
       formData.append("address", JSON.stringify(userData.address));
       image && formData.append("image", image);
 
@@ -161,6 +163,40 @@ const MyProfile = () => {
               المعلومات الأساسية
             </p>
             <div className="grid grid-cols-[1fr_3fr] gap-y-2.5 text-neutral-700">
+              <p className="font-medium">الرقم القومي:</p>
+              {isEdit ? (
+                <input
+                  className="bg-gray-100 max-w-52"
+                  type="text"
+                  value={userData.nationaliId}
+                  onChange={(e) =>
+                    setUserData((prev) => ({
+                      ...prev,
+                      nationaliId: e.target.value,
+                    }))
+                  }
+                />
+              ) : (
+                <p className="text-gray-400">{userData.nationaliId}</p>
+              )}
+
+              <p className="font-medium">الجنسية:</p>
+              {isEdit ? (
+                <input
+                  className="bg-gray-100 max-w-52"
+                  type="text"
+                  value={userData.nationality}
+                  onChange={(e) =>
+                    setUserData((prev) => ({
+                      ...prev,
+                      nationality: e.target.value,
+                    }))
+                  }
+                />
+              ) : (
+                <p className="text-gray-400">{userData.nationality}</p>
+              )}
+
               <p className="font-medium">النوع :</p>
               {isEdit ? (
                 <select
