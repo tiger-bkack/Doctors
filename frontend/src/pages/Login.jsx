@@ -50,6 +50,7 @@ const Login = () => {
           if (loginData.success) {
             localStorage.setItem("token", loginData.token);
             setToken(loginData.token);
+            navgate("/");
           } else {
             toast.error(loginData.message);
           }

@@ -3,22 +3,20 @@ import { assets } from "../assets/assets";
 
 function LoaderStartApp() {
   return (
-    <div className="h-screen flex flex-col justify-center items-center bg-white">
+    <div className="h-screen flex flex-col justify-center items-center bg-[#5f6fff]">
       {/* اللوجو */}
       <img
         src={assets.logo}
         alt="Logo"
-        className="w-28 h-28  object-contain mb-6 drop-shadow-md animate-bounce"
+        className="w-28 h-28 text-white object-contain mb-6 drop-shadow-md animate-bounce"
       />
 
       {/* النصوص */}
       <div className="flex flex-col items-center mb-8">
-        <p className="text-4xl font-extrabold text-gray-700 tracking-wide">
+        <p className="text-4xl font-extrabold text-white tracking-wide">
           سلامتك
         </p>
-        <p className="text-base font-medium text-gray-500 mt-1">
-          راحة · طمأنينة
-        </p>
+        <p className="text-base font-medium text-white mt-1">راحة · طمأنينة</p>
       </div>
 
       {/* النقاط المتحركة */}

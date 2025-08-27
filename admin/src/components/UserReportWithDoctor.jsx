@@ -97,7 +97,7 @@ const UserReportWithDoctor = () => {
             <div
               ref={(el) => (reportRefs.current[index] = el)}
               key={index}
-              className="a4-page shadow-lg bg-white mx-auto my-8"
+              className="p-15 mt-10 shadow-lg bg-white mx-auto my-8"
               style={{
                 width: "210mm", // A4 width
                 minHeight: "297mm", // A4 height
@@ -109,7 +109,7 @@ const UserReportWithDoctor = () => {
             >
               {/* Header */}
               <div>
-                <div className="text-center mb-4  pb-3 ">
+                <div className="text-center mb-4  pb-5 ">
                   <div className="flex items-center justify-center gap-2">
                     <img className="w-20" src={assets.logo} alt="logo" />
                     <div>
@@ -125,7 +125,7 @@ const UserReportWithDoctor = () => {
 
                 {/* Report body */}
                 <div className="report-body">
-                  <div className="grid grid-cols-2 gap-5 border-b pb-3">
+                  <div className="grid grid-cols-2 gap-5 border-b py-4">
                     <div>
                       <p>
                         <span className="font-bold">Name :</span>{" "}
@@ -164,7 +164,7 @@ const UserReportWithDoctor = () => {
                     </div>
                   </div>
 
-                  <div className="mt-4">
+                  <div className="mt-10">
                     <p>
                       <span className="font-bold">Complaint :</span>{" "}
                       {items.complaint}

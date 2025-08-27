@@ -15,6 +15,37 @@ const AppContextProvider = (props) => {
   const [userData, setUserData] = useState(false);
   const [loader, setLoader] = useState(false);
   const [reports, setReports] = useState([]);
+  const [userInfo, setUserInfo] = useState(null);
+
+  const calculateAge = (dob) => {
+    const today = new Date();
+    const birDate = new Date(dob);
+
+    let age = today.getFullYear() - birDate.getFullYear();
+    return age;
+  };
+  const month = [
+    "",
+    "يناير",
+    "فبراير",
+    "مارس",
+    "إبريل",
+    "مايو",
+    "يونو",
+    "يليو",
+    "أغسطس",
+    "سبتمبر",
+    "أكتوبر",
+    "نوفمبر",
+    "ديسمبر",
+  ];
+
+  const slotDateFormat = (slotDate) => {
+    const dateArray = slotDate.split("_");
+    return (
+      dateArray[0] + " " + month[Number(dateArray[1])] + " " + dateArray[2]
+    );
+  };
 
   const getDoctorList = async () => {
     try {
@@ -60,9 +91,26 @@ const AppContextProvider = (props) => {
 
       if (data.success) {
         console.log(data.reports);
-        setReports(data.reports);
+        setReports(data.reports || []);
       } else {
+        setReports([]);
         toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error.message);
+      toast.error(error.message);
+    }
+  };
+
+  const getUserInfo = async () => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/user/user-info",
+        {},
+        { headers: { token } }
+      );
+      if (data.success) {
+        setUserInfo(data.userDetails);
       }
     } catch (error) {
       console.log(error.message);
@@ -78,6 +126,8 @@ const AppContextProvider = (props) => {
     }
   }, [token]);
   const value = {
+    slotDateFormat,
+    calculateAge,
     doctors,
     curremcysymbol,
     backendUrl,
@@ -90,6 +140,8 @@ const AppContextProvider = (props) => {
     loader,
     getAllReportsFromUser,
     reports,
+    getUserInfo,
+    userInfo,
   };
 
   return (

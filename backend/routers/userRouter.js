@@ -6,6 +6,7 @@ import {
   loginUser,
   registerUser,
   updateProfileUserInfo,
+  useDetails,
   userProfile,
   userReports,
 } from "../controllers/userController.js";
@@ -34,5 +35,7 @@ userRouter.post("/book-appointment", authUser, bookAppointment);
 userRouter.post("/cancel-appointment", authUser, cancelAppointment);
 
 userRouter.post("/reports", authUser, userReports);
+
+userRouter.post("/user-info", authUser, useDetails);
 
 export default userRouter;

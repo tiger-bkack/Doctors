@@ -6,7 +6,7 @@ import { AdminContext } from "../context/AdminContext";
 import { assets } from "../assets/assets";
 
 const ReportBar = () => {
-  const { atoken } = useContext(AdminContext);
+  //const { atoken } = useContext(AdminContext);
   const { dtoken } = useContext(DoctorContext);
   return (
     <div className="flex items-center justify-around text-sm  bg-gray-100 font-semibold">

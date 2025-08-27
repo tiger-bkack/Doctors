@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import appointmentModel from "../models/appointmentModel.js";
 import reportModel from "../models/reportModel.js";
 import userModel from "../models/userModel.js";
+import consultationModel from "../models/consultationModel.js";
 
 const changeAvalibality = async (req, res) => {
   try {
@@ -255,6 +256,38 @@ const addReport = async (req, res) => {
   }
 };
 
+//API to edit report
+const editReport = async (req, res) => {
+  try {
+    const {
+      reportId,
+      complaint,
+      examination,
+      diagnosis,
+      treatment,
+      notes,
+      nextVisit,
+    } = req.body;
+
+    const reportInfo = await reportModel.findByIdAndUpdate(reportId, {
+      complaint,
+      examination,
+      diagnosis,
+      treatment,
+      notes,
+      nextVisit,
+    });
+
+    res.json({
+      success: true,
+      message: ` تم تحديث التقرير بنجاح لي     ${reportInfo.userData.name}`,
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
 //api get all report to doctor dashbord
 const allReport = async (req, res) => {
   try {
@@ -273,8 +306,12 @@ const getUserReportWithDoctor = async (req, res) => {
     const docId = req.docId;
     const userReport = await reportModel.find({ userId, docId });
 
-    if (!userReport || userReport.length === 0) {
+    if (!userReport) {
       return res.json({ success: false, message: "لا يوجد تقارير" });
+    }
+
+    if (userReport.length === 0) {
+      return res.json({ success: true, message: "لا يوجد تقارير" });
     }
     res.status(200).json({ success: true, userReport });
   } catch (error) {
@@ -318,6 +355,93 @@ const searchUser = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+// get how many appointment for this use and report
+const useDetails = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    const userAppointment = await appointmentModel.find({ userId });
+    const userReport = await reportModel.find({ userId });
+
+    const userDetails = {
+      userAppointment: userAppointment.length,
+      userReport: userReport.length,
+    };
+
+    res.json({ success: true, userDetails });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// create consultation with doctor when the appointment is completed
+const createConsaltation = async (req, res) => {
+  try {
+    const { userId, consultDay, notes, appointmentId } = req.body;
+    const docId = req.docId;
+
+    if (!consultDay) {
+      return res.json({ success: false, message: "برجاء اختيار اليوم" });
+    }
+
+    // هات الـ appointment اللي الدكتور بعته
+    const appointmentData = await appointmentModel.findById(appointmentId);
+
+    if (!appointmentData) {
+      return res.json({ success: false, message: "الحجز غير موجود" });
+    }
+
+    // تأكد إن الحجز ده يخص نفس المريض والدكتور
+    if (
+      appointmentData.userId.toString() !== userId ||
+      appointmentData.docId.toString() !== docId
+    ) {
+      return res.json({
+        success: false,
+        message: "هذا الحجز لا يخص هذا المريض",
+      });
+    }
+
+    // تأكد إن الكشف فعلاً اتعمل
+    if (!appointmentData.isCompleted) {
+      return res.json({
+        success: false,
+        message: "هذا الحجز لم يتم الكشف فيه بعد",
+      });
+    }
+
+    // تأكد إن يوم الاستشارة بعد يوم الحجز
+    // لازم نحول slotDate لـ Date
+    const [day, month, year] = appointmentData.slotDate.split("_");
+    const appointmentDate = new Date(`${year}-${month}-${day}`);
+    const consultDate = new Date(consultDay);
+
+    if (consultDate <= appointmentDate) {
+      return res.json({
+        success: false,
+        message: "ميعاد الاستشارة لازم يكون بعد ميعاد الكشف",
+      });
+    }
+
+    // لو كل الشروط تمام
+    const newConsaltation = new consultationModel({
+      userId,
+      docId,
+      consultDay,
+      notes,
+      appointmentId,
+    });
+
+    await newConsaltation.save();
+    res.json({ success: true, message: "تم إنشاء الاستشارة بنجاح" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
 export {
   changeAvalibality,
   doctorList,
@@ -332,4 +456,7 @@ export {
   allReport,
   getUserReportWithDoctor,
   searchUser,
+  editReport,
+  useDetails,
+  createConsaltation,
 };

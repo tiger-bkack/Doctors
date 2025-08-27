@@ -112,10 +112,10 @@ const Sidebar = () => {
                 isActive ? "bg-[#f2f3ff] border-r-4 border-[#5f6fff]" : ""
               }`
             }
-            to={"/reposts"}
+            to={"/report"}
           >
             <img src={assets.people_icon} alt="" />
-            <p className="hidden md:block">كل التقارير</p>
+            <p className="hidden md:block">التقارير</p>
           </NavLink>
 
           {/* <NavLink

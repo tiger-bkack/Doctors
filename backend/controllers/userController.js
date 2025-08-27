@@ -281,13 +281,62 @@ const cancelAppointment = async (req, res) => {
 const userReports = async (req, res) => {
   try {
     const userId = req.userId;
-    const reports = await reportModel.find({ id: userId });
+    const reports = await reportModel.find({ userId });
 
-    if (reports.length === 0 || !reports) {
-      res.json({ success: false, message: "لا يوجد اي تقارير حتي الان" });
+    if (!reports || reports.length === 0) {
+      return res.json({ success: true, message: "لا يوجد اي تقارير حتي الان" });
     }
 
-    res.json({ success: true, reports });
+    return res.json({ success: true, reports });
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false, message: error.message });
+  }
+};
+
+// get how many appointment for this use and report
+const useDetails = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    const userAppointment = await appointmentModel.find({ userId });
+    const userReport = await reportModel.find({ userId });
+
+    const userDetails = {
+      userAppointment: userAppointment.length,
+      userReport: userReport.length,
+    };
+
+    res.json({ success: true, userDetails });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// get consaltaion to user
+const getConsaltation = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    const consaltaionData = await consultationModel.findById({ appointmentId });
+
+    if (consaltaionData.length === 0 || !consaltaionData) {
+      return res.json({
+        success: false,
+        message: "you dont have consaltation yet",
+      });
+    }
+
+    res.json({ success: true, consaltaionData });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// update consaltation to chose time from user
+const updateConsaltationTime = async (req, res) => {
+  try {
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
@@ -302,4 +351,5 @@ export {
   listAppointment,
   cancelAppointment,
   userReports,
+  useDetails,
 };

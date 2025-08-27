@@ -5,9 +5,19 @@ import { assets } from "../../assets/assets";
 import { Button, Modal } from "flowbite-react";
 import AddReport from "../../components/AddReport";
 import { Dropdown, DropdownItem } from "flowbite-react";
+import { Spinner } from "flowbite-react";
+import { FiMoreVertical } from "react-icons/fi";
+import ViewModel from "../../components/ViewModel";
+import AddConsaltation from "../../components/AddConsaltation";
+
 function DoctorAppointments() {
   const [openModal, setOpenModal] = useState(false);
+  const [openViewReportModel, setOpenViewReportModel] = useState(false);
+  const [openAddConsualtationModel, setOpenAddConsualtationModel] =
+    useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [selectedReport, setSelectedReport] = useState(null);
+  const [selectedConsaltation, setSelectedConsaltation] = useState(null);
 
   const {
     getAppointments,
@@ -37,6 +47,16 @@ function DoctorAppointments() {
     setOpenModal(true);
   };
 
+  const handleOpenViweModel = (items) => {
+    setSelectedReport(items);
+    setOpenViewReportModel(true);
+  };
+
+  const handleOpenConsualationModel = (items) => {
+    setSelectedConsaltation(items);
+    setOpenAddConsualtationModel(true);
+  };
+
   return (
     <div className="w-full max-w-6xl m-5">
       <p className="mb-3 font-medium text-lg">
@@ -44,14 +64,16 @@ function DoctorAppointments() {
       </p>
 
       <div className="bg-white border border-gray-200 text-sm max-h-[80vh] min-h-[50vh] overflow-y-scroll">
-        <div className="max-sm:hidden grid grid-cols-[0.5fr_1fr_1fr_0.5fr_2fr_1fr_1.5fr] gap-1 py-3 px-6 border-b border-gray-200">
+        <div className="max-sm:hidden  grid grid-cols-[0.5fr_1fr_1fr_0.5fr_2fr_1fr_1.5fr] gap-1 py-3 px-6 border-b border-gray-200">
           <p className="hidden md:block">#</p>
           <p>المريض</p>
           <p>حاله الدفع</p>
           <p>العمر</p>
           <p className="hidden md:block">الوقت & التاريخ</p>
           <p>سعر الكشف</p>
-          <p>الحالة</p>
+          <div className="w-full flex items-center justify-center">
+            <p>الحالة</p>
+          </div>
         </div>
 
         {appointment.map((items, index) => (
@@ -94,7 +116,7 @@ function DoctorAppointments() {
             ) : items.isCompleted ? (
               <div className="flex items-center justify-center gap-4">
                 <p className="text-green-500 text-sm font-medium">تم الكشف</p>
-                <Dropdown inline className="px-3 py-2">
+                <Dropdown inline className="px-3 py-3 !bg-[#5f6fff] ">
                   <DropdownItem
                     onClick={() => {
                       handleOpenModal(items);
@@ -102,26 +124,45 @@ function DoctorAppointments() {
                   >
                     أضافه تقرير
                   </DropdownItem>
-                  <DropdownItem>Settings</DropdownItem>
-                  <DropdownItem>Earnings</DropdownItem>
-                  <DropdownItem>Sign out</DropdownItem>
+                  <DropdownItem
+                    onClick={() => {
+                      handleOpenViweModel(items);
+                    }}
+                  >
+                    عرض التقارير
+                  </DropdownItem>
+                  <DropdownItem
+                    onClick={() => {
+                      handleOpenConsualationModel(items);
+                    }}
+                  >
+                    تحتديد أستشارة
+                  </DropdownItem>
                 </Dropdown>
               </div>
             ) : (
-              <div className="flex gap-0.5 relative group">
-                {loader ? "جاري التنفيذ..." : ""}
-                <img
-                  onClick={() => cancelAppointment(items._id)}
-                  className="w-10 cursor-pointer"
-                  src={assets.cancel_icon}
-                  alt="cancel"
-                />
-                <img
-                  onClick={() => completeAppointment(items._id)}
-                  className="w-10 cursor-pointer"
-                  src={assets.tick_icon}
-                  alt="complete"
-                />
+              <div className="flex gap-0.5 ">
+                {loader ? (
+                  <p>
+                    <span className="pl-3">جاري التنفيذ...</span>
+                    <Spinner aria-label="Default status example" size="md" />
+                  </p>
+                ) : (
+                  <div className="w-full flex items-center justify-center">
+                    <img
+                      onClick={() => cancelAppointment(items._id)}
+                      className="w-10 cursor-pointer"
+                      src={assets.cancel_icon}
+                      alt="cancel"
+                    />
+                    <img
+                      onClick={() => completeAppointment(items._id)}
+                      className="w-10 cursor-pointer"
+                      src={assets.tick_icon}
+                      alt="complete"
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -135,6 +176,34 @@ function DoctorAppointments() {
             setOpenModal={setOpenModal}
             appointmentId={selectedAppointment._id}
             items={selectedAppointment}
+          />
+        )}
+      </Modal>
+
+      {/*Viwe model to see user report and print this report */}
+      <Modal
+        size="7xl"
+        show={openViewReportModel}
+        onClose={() => setOpenViewReportModel(false)}
+      >
+        {selectedReport && (
+          <ViewModel
+            setOpenViewReportModel={setOpenViewReportModel}
+            items={selectedReport}
+          />
+        )}
+      </Modal>
+
+      {/*Viwe model to see user report and print this report */}
+      <Modal
+        size="lg"
+        show={openAddConsualtationModel}
+        onClose={() => setOpenAddConsualtationModel(false)}
+      >
+        {selectedConsaltation && (
+          <AddConsaltation
+            setOpenAddConsualtationModel={setOpenAddConsualtationModel}
+            items={selectedConsaltation}
           />
         )}
       </Modal>

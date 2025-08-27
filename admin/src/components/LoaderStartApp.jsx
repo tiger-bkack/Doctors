@@ -3,7 +3,7 @@ import { assets } from "../assets/assets";
 
 function LoaderStartApp() {
   return (
-    <div className="h-screen flex flex-col justify-center items-center bg-white">
+    <div className="h-screen flex flex-col justify-center items-center bg-[#5f6fff]">
       {/* اللوجو */}
       <img
         src={assets.logo}
@@ -12,13 +12,9 @@ function LoaderStartApp() {
       />
 
       {/* النصوص */}
-      <div className="flex flex-col items-center mb-8">
-        <p className="text-4xl font-extrabold text-[#5f6fff] tracking-wide">
-          سلامتك
-        </p>
-        <p className="text-base font-medium text-gray-500 mt-1">
-          راحة · طمأنينة
-        </p>
+      <div className="flex flex-col items-center text-white mb-8">
+        <p className="text-4xl font-extrabold  tracking-wide">سلامتك</p>
+        <p className="text-base font-medium  mt-1">راحة · طمأنينة</p>
       </div>
 
       {/* النقاط المتحركة */}

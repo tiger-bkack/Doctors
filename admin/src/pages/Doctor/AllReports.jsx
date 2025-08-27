@@ -40,14 +40,16 @@ const AllReports = () => {
   return (
     reportData && (
       <div dir="ltr" className="w-full max-w-6xl m-5">
-        <p className="mb-3 font-medium text-lg ">Reports</p>
+        <div className="w-full flex justify-center">
+          <p className="mb-3 font-semibold uppercase text-2xl  ">Reports</p>
+        </div>
 
         <div className="max-h-[95vh] min-h-[90vh] overflow-y-scroll">
           {reportData.map((items, index) => (
             <div
               ref={(el) => (reportRefs.current[index] = el)}
               key={index}
-              className="a4-page shadow-lg bg-white mx-auto my-8"
+              className="p-15 mt-10 shadow-lg bg-white mx-auto my-8"
               style={{
                 width: "210mm", // A4 width
                 minHeight: "297mm", // A4 height
@@ -59,7 +61,7 @@ const AllReports = () => {
             >
               {/* Header */}
               <div>
-                <div className="text-center mb-4 border-b pb-2">
+                <div className="text-center mb-4 border-b pb-5">
                   <div className="flex items-center justify-center gap-2">
                     <img className="w-20" src={assets.logo} alt="logo" />
                     <div>
@@ -74,8 +76,8 @@ const AllReports = () => {
                 </div>
 
                 {/* Report body */}
-                <div className="report-body">
-                  <div className="grid grid-cols-2 gap-5 border-b pb-3">
+                <div className="report-body ">
+                  <div className="grid grid-cols-2 gap-5 border-b py-4">
                     <div>
                       <p>
                         <span className="font-bold">Name :</span>{" "}
@@ -114,7 +116,7 @@ const AllReports = () => {
                     </div>
                   </div>
 
-                  <div className="mt-4">
+                  <div className="mt-10">
                     <p>
                       <span className="font-bold">Complaint :</span>{" "}
                       {items.complaint}
@@ -156,7 +158,7 @@ const AllReports = () => {
                   </div>
                   <div className="">
                     <Button
-                      className="no-print"
+                      className=""
                       onClick={() => handlePrint(reportRefs.current[index])}
                     >
                       Print Report

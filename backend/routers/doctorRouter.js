@@ -12,6 +12,9 @@ import {
   allReport,
   getUserReportWithDoctor,
   searchUser,
+  editReport,
+  useDetails,
+  createConsaltation,
 } from "../controllers/doctorController.js";
 import authDoctor from "../middlewares/authDoctor.js";
 
@@ -35,9 +38,15 @@ doctorRouter.post("/update-profile", authDoctor, doctorProfileUpdate);
 
 doctorRouter.post("/add-report", authDoctor, addReport);
 
+doctorRouter.post("/update-report", authDoctor, editReport);
+
 doctorRouter.post("/reposts", authDoctor, allReport);
 
 doctorRouter.post("/user-report", authDoctor, getUserReportWithDoctor);
 
 doctorRouter.post("/search", authDoctor, searchUser);
+
+doctorRouter.post("/user-info", authDoctor, useDetails);
+
+doctorRouter.post("/add-consualtation", authDoctor, createConsaltation);
 export default doctorRouter;
