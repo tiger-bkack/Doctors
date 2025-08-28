@@ -206,7 +206,7 @@ const UserReportWithDoctor = () => {
                   </div>
                   <div className="">
                     <Button
-                      className=""
+                      className="no-print"
                       onClick={() => handlePrint(reportRefs.current[index])}
                     >
                       Print Report

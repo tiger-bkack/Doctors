@@ -4,12 +4,19 @@ import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
+import { Button, Modal } from "flowbite-react";
+import UpdateConsaltation from "../components/UpdateConsaltation";
 
 const MyAppointments = () => {
   const { token, backendUrl, getDoctorList } = useContext(AppContext);
   const [loading, setLoading] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
 
   const [appointments, setAppointments] = useState([]);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+
+  const [consaltation, setConsaltation] = useState({});
+
   const month = [
     "",
     "يناير",
@@ -80,6 +87,35 @@ const MyAppointments = () => {
     }
   };
 
+  const getConsaltation = async (appointmentId, docId) => {
+    try {
+      setConsaltation(null);
+      const { data } = await axios.post(
+        backendUrl + "/api/user/consaltation",
+        { appointmentId, docId },
+        { headers: { token } }
+      );
+
+      if (data.success) {
+        console.log(data.consaltaionData);
+
+        setConsaltation(data.consaltaionData);
+      } else {
+        //toast.warning(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  const handelUpdateConsaltion = async (appointment) => {
+    console.log(consaltation);
+    setSelectedAppointment(appointment);
+    await getConsaltation(appointment._id, appointment.docId);
+    setOpenModal(true);
+  };
+
   useEffect(() => {
     if (token) {
       getAppointments();
@@ -144,12 +180,31 @@ const MyAppointments = () => {
                 </button>
               )}
               {item.isCompleted && (
-                <button className="sm:min-w-48 py-2 border border-green-500 rounded text-green-500 cursor-pointer">
-                  تم الكشف
-                </button>
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={() => handelUpdateConsaltion(item)}
+                    className="sm:min-w-48 py-2 border border-[#5f6fff] hover:bg-[#5f6fff]  transition-all duration-300 hover:text-white rounded text-[#5f6fff] cursor-pointer"
+                  >
+                    استشارة
+                  </button>
+                  <Modal show={openModal} onClose={() => setOpenModal(false)}>
+                    {selectedAppointment && (
+                      <UpdateConsaltation
+                        doctorInfo={selectedAppointment.docData}
+                        setOpenModal={setOpenModal}
+                        consaltation={consaltation}
+                        appointmentId={selectedAppointment._id}
+                      />
+                    )}
+                  </Modal>
+
+                  <button className="sm:min-w-48 py-2 border border-green-500 rounded text-green-500 hover:bg-green-500  transition-all duration-300 hover:text-white cursor-pointer">
+                    تم الكشف
+                  </button>
+                </div>
               )}
               {item.payment && (
-                <button className="sm:min-w-48 py-2 border border-green-500 rounded text-green-500 cursor-pointer">
+                <button className="sm:min-w-48 py-2 border border-green-500 rounded text-green-500 hover:bg-green-500  transition-all duration-300 hover:text-white cursor-pointer">
                   تم الدفع
                 </button>
               )}

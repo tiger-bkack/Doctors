@@ -81,6 +81,12 @@ const Navbar = () => {
                   حجوزاتي
                 </p>
                 <p
+                  onClick={() => navgate("/my-consultation")}
+                  className="hover:text-black cursor-pointer"
+                >
+                  أستشاراتي
+                </p>
+                <p
                   onClick={() => navgate("/reports")}
                   className="hover:text-black cursor-pointer"
                 >

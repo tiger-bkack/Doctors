@@ -6,11 +6,13 @@ const consultationSchema = mongoose.Schema({
     ref: "appointment",
     required: true,
   },
+  appointmentData: { type: Object, required: true },
   docId: { type: mongoose.Schema.ObjectId, ref: "doctor", required: true },
   userId: { type: mongoose.Schema.ObjectId, ref: "user", required: true },
   consultDay: { type: Date, required: true },
-  consultTime: { type: Date },
+  consultTime: { type: String },
   isCompleted: { type: Boolean, default: false },
+  cancelled: { type: Boolean, required: false },
   notes: { type: String, required: false },
 });
 

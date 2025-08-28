@@ -432,6 +432,7 @@ const createConsaltation = async (req, res) => {
       consultDay,
       notes,
       appointmentId,
+      appointmentData: appointmentData,
     });
 
     await newConsaltation.save();

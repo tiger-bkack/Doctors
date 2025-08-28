@@ -40,11 +40,11 @@
 
 @media print {
   .no-print {
-    display: none !important;
+    display: none;
   }
 }
 
-/* أخفاء زرار الطباعة من PDF */
+/* أخفاء زرار الطباعة من PDF
 .no-print {
   display: none !important;
-}
+} */

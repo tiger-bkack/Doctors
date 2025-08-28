@@ -52,8 +52,8 @@ function DoctorAppointments() {
     setOpenViewReportModel(true);
   };
 
-  const handleOpenConsualationModel = (items) => {
-    setSelectedConsaltation(items);
+  const handleOpenConsualationModel = (appointment) => {
+    setSelectedConsaltation(appointment);
     setOpenAddConsualtationModel(true);
   };
 

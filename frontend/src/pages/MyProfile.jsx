@@ -53,7 +53,14 @@ const MyProfile = () => {
   };
   return userData ? (
     <div dir="rtl" className="">
-      <div className="max-w-lg flex flex-col gap-2 text-sm">
+      <div className="max-w-lg flex flex-col gap-2 text-sm relative">
+        <div className="">
+          <img
+            src={assets.logo}
+            className="absolute bottom-10 right-120 opacity-3 w-300 rotate-330 sm:hidden md:block "
+            alt=""
+          />
+        </div>
         {isEdit ? (
           <label htmlFor="image">
             <div className="inline-block relative cursor-pointer ">

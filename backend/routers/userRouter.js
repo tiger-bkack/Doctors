@@ -2,9 +2,12 @@ import express from "express";
 import {
   bookAppointment,
   cancelAppointment,
+  getAllConsaltation,
+  getConsaltation,
   listAppointment,
   loginUser,
   registerUser,
+  updateConsaltationTime,
   updateProfileUserInfo,
   useDetails,
   userProfile,
@@ -37,5 +40,11 @@ userRouter.post("/cancel-appointment", authUser, cancelAppointment);
 userRouter.post("/reports", authUser, userReports);
 
 userRouter.post("/user-info", authUser, useDetails);
+
+userRouter.post("/consaltation", authUser, getConsaltation);
+
+userRouter.post("/all-consaltation", authUser, getAllConsaltation);
+
+userRouter.post("/update-ConsaltationTime", authUser, updateConsaltationTime);
 
 export default userRouter;

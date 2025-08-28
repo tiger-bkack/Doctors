@@ -7,6 +7,7 @@ import doctorModel from "../models/doctorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
 import Stripe from "stripe";
 import reportModel from "../models/reportModel.js";
+import consultationModel from "../models/consultationModel.js";
 
 // user login
 const registerUser = async (req, res) => {
@@ -301,10 +302,12 @@ const useDetails = async (req, res) => {
 
     const userAppointment = await appointmentModel.find({ userId });
     const userReport = await reportModel.find({ userId });
+    const userConsultation = await consultationModel.find({ userId });
 
     const userDetails = {
       userAppointment: userAppointment.length,
       userReport: userReport.length,
+      userConsultation: userConsultation.length,
     };
 
     res.json({ success: true, userDetails });
@@ -314,16 +317,22 @@ const useDetails = async (req, res) => {
   }
 };
 
-// get consaltaion to user
+// get consultation to user
 const getConsaltation = async (req, res) => {
   try {
-    const { appointmentId } = req.body;
-    const consaltaionData = await consultationModel.findById({ appointmentId });
+    const { appointmentId, docId } = req.body;
+    const userId = req.userId;
 
-    if (consaltaionData.length === 0 || !consaltaionData) {
+    const consaltaionData = await consultationModel.findOne({
+      appointmentId,
+      docId,
+      userId,
+    });
+
+    if (!consaltaionData) {
       return res.json({
         success: false,
-        message: "you dont have consaltation yet",
+        message: "لم يقوم الطبيب بتحديد موعد أستشارة",
       });
     }
 
@@ -334,14 +343,80 @@ const getConsaltation = async (req, res) => {
   }
 };
 
-// update consaltation to chose time from user
-const updateConsaltationTime = async (req, res) => {
+// get all consultation to user
+const getAllConsaltation = async (req, res) => {
   try {
+    const userId = req.userId;
+    const consaltationData = await consultationModel.find({ userId: userId });
+
+    if (!consaltationData) {
+      return res.json({
+        success: false,
+        message: "you don't have consultation yet",
+      });
+    }
+
+    res.json({ success: true, consaltationData });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
   }
 };
+
+// تحديث وقت الاستشارة مع التحقق من التكرار
+const updateConsaltationTime = async (req, res) => {
+  try {
+    const { consaltationId, consultTime } = req.body;
+
+    // جلب الاستشارة الحالية
+    const consaltation = await consultationModel.findById(consaltationId);
+    if (!consaltation) {
+      return res.json({
+        success: false,
+        message: "لا توجد استشارة بهذا المعرف",
+      });
+    }
+
+    const consultDay = consaltation.consultDay; // اليوم موجود في الاستشارة بالفعل
+    const selectedTime = consultTime;
+
+    // تحقق لو فيه أي استشارة بنفس اليوم والوقت سواء لنفس المستخدم أو لحد تاني
+    const conflict = await consultationModel.findOne({
+      consultDay,
+      consultTime: selectedTime,
+    });
+
+    if (conflict) {
+      return res.json({
+        success: false,
+        message: "هذا الوقت تم حجزه بالفعل، اختر وقت آخر",
+      });
+    }
+
+    // تحديث الاستشارة
+    consaltation.consultTime = selectedTime;
+    await consaltation.save();
+
+    res.json({
+      success: true,
+      message: "تم تحديث وقت الاستشارة بنجاح",
+      consaltation,
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+const cancelledConsultation = async (req, res) => {
+  try {
+    const { consultationId, docId } = req.body;
+    const userId = req.userId;
+
+    //هشيل الوقت من علشان يبقي ظاهر للمستخدمين التنيين
+  } catch (error) {}
+};
+
 export {
   registerUser,
   loginUser,
@@ -352,4 +427,7 @@ export {
   cancelAppointment,
   userReports,
   useDetails,
+  getConsaltation,
+  updateConsaltationTime,
+  getAllConsaltation,
 };
