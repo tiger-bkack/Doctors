@@ -15,6 +15,8 @@ import {
   editReport,
   useDetails,
   createConsaltation,
+  consultationCompeleted,
+  cancelConsultation,
 } from "../controllers/doctorController.js";
 import authDoctor from "../middlewares/authDoctor.js";
 
@@ -49,4 +51,9 @@ doctorRouter.post("/search", authDoctor, searchUser);
 doctorRouter.post("/user-info", authDoctor, useDetails);
 
 doctorRouter.post("/add-consualtation", authDoctor, createConsaltation);
+
+doctorRouter.post("/complete-consultation", authDoctor, consultationCompeleted);
+
+doctorRouter.post("/cancel-consultation", authDoctor, cancelConsultation);
+
 export default doctorRouter;

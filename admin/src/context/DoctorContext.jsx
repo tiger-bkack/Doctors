@@ -178,6 +178,52 @@ const DoctorContextProvider = (props) => {
     }
   };
 
+  const completeConsultation = async (consultationId, userId) => {
+    try {
+      console.log(consultationId);
+      console.log(userId);
+
+      setLoader(true);
+      const { data } = await axios.post(
+        backendUrl + "/api/doctor/complete-consultation",
+        { consultationId, userId },
+        { headers: { dtoken } }
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    } finally {
+      setLoader(false);
+    }
+  };
+
+  const cancelConsultation = async (consultationId, userId) => {
+    try {
+      setLoader(true);
+      const { data } = await axios.post(
+        backendUrl + "/api/doctor/cancel-consultation",
+        { consultationId, userId },
+        { headers: { dtoken } }
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    } finally {
+      setLoader(false);
+    }
+  };
   const value = {
     dtoken,
     setDtoken,
@@ -200,6 +246,8 @@ const DoctorContextProvider = (props) => {
     getUserReportWithDoctor,
     getUserInfo,
     userData,
+    completeConsultation,
+    cancelConsultation,
   };
 
   return (

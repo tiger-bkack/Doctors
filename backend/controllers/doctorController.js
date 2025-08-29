@@ -119,11 +119,19 @@ const doctorDashbord = async (req, res) => {
   try {
     const { docId } = req.body;
     const appointments = await appointmentModel.find({ docId });
+    const consultations = await consultationModel.find({ docId });
 
-    let earnings = 0;
+    let earnings_appointment = 0;
     appointments.map((item) => {
       if (item.isCompleted || item.payment) {
-        earnings += item.amount;
+        earnings_appointment += item.amount;
+      }
+    });
+    let earnings_consultation = 0;
+
+    consultations.map((item) => {
+      if (item.isCompleted) {
+        earnings_consultation += item.amount;
       }
     });
 
@@ -134,11 +142,21 @@ const doctorDashbord = async (req, res) => {
       }
     });
 
+    const patients_Consultation = [];
+    consultations.map((items) => {
+      if (!patients_Consultation.includes(items.userId)) {
+        patients_Consultation.push(items.userId);
+      }
+    });
+
     const dashData = {
-      earnings,
+      earnings_appointment,
+      earnings_consultation,
+      patients_Consultation: patients_Consultation.length,
       appointments: appointments.length,
       patients: patients.length,
-      latestAppointments: appointments.reverse().slice(0, 5),
+      latestAppointments: appointments.reverse().slice(0, 3),
+      latestConsultation: consultations.reverse().slice(0, 3),
     };
 
     res.json({ success: true, dashData });
@@ -164,9 +182,18 @@ const doctorProfile = async (req, res) => {
 // api to update doctor info to -------> dashbord
 const doctorProfileUpdate = async (req, res) => {
   try {
-    const { docId, fees, address, avalibale, phone, start_booked } = req.body;
+    const {
+      docId,
+      fees,
+      address,
+      avalibale,
+      phone,
+      start_booked,
+      consultation_fees,
+    } = req.body;
     const docInfo = await doctorModel.findByIdAndUpdate(docId, {
       fees,
+      consultation_fees,
       address,
       avalibale,
       phone,
@@ -379,7 +406,7 @@ const useDetails = async (req, res) => {
 // create consultation with doctor when the appointment is completed
 const createConsaltation = async (req, res) => {
   try {
-    const { userId, consultDay, notes, appointmentId } = req.body;
+    const { userId, consultDay, notes, appointmentId, amount } = req.body;
     const docId = req.docId;
 
     if (!consultDay) {
@@ -432,11 +459,67 @@ const createConsaltation = async (req, res) => {
       consultDay,
       notes,
       appointmentId,
+      amount,
       appointmentData: appointmentData,
+      userData: appointmentData.userData,
+      docData: appointmentData.docData,
     });
 
     await newConsaltation.save();
     res.json({ success: true, message: "تم إنشاء الاستشارة بنجاح" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// completed consultation with doctor
+const consultationCompeleted = async (req, res) => {
+  try {
+    const { consultationId, userId } = req.body;
+    const docId = req.docId;
+
+    const consultation = await consultationModel.findById(consultationId);
+    if (
+      consultation &&
+      consultation.docId.equals(docId) &&
+      consultation.userId.equals(userId)
+    ) {
+      await consultationModel.findByIdAndUpdate(consultationId, {
+        isCompleted: true,
+      });
+      res.json({ success: true, message: "تم الانتهاء من الاستشارة بنجاح" });
+    } else {
+      res.json({ success: false, message: "لم تنجح العملية" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+const cancelConsultation = async (req, res) => {
+  try {
+    const { consultationId, userId } = req.body;
+    const docId = req.docId;
+
+    const consultation = await consultationModel.findById(consultationId);
+    if (
+      consultation &&
+      consultation.docId.equals(docId) &&
+      consultation.userId.equals(userId)
+    ) {
+      await consultationModel.findByIdAndUpdate(consultationId, {
+        cancelled: true,
+      });
+      res.json({
+        success: true,
+        message: `تم ألغاء 
+        استشارة الماريض ${consultation.userData.name}`,
+      });
+    } else {
+      res.json({ success: false, message: "لم تنجح العملية" });
+    }
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
@@ -460,4 +543,6 @@ export {
   editReport,
   useDetails,
   createConsaltation,
+  consultationCompeleted,
+  cancelConsultation,
 };

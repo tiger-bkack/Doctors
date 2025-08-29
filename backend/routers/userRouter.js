@@ -2,6 +2,7 @@ import express from "express";
 import {
   bookAppointment,
   cancelAppointment,
+  cancelConsultation,
   getAllConsaltation,
   getConsaltation,
   listAppointment,
@@ -46,5 +47,7 @@ userRouter.post("/consaltation", authUser, getConsaltation);
 userRouter.post("/all-consaltation", authUser, getAllConsaltation);
 
 userRouter.post("/update-ConsaltationTime", authUser, updateConsaltationTime);
+
+userRouter.post("/cancel-consultation", authUser, cancelConsultation);
 
 export default userRouter;

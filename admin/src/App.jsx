@@ -20,6 +20,7 @@ import NotFound from "./pages/NotFound";
 
 import Reports from "./pages/Doctor/Reports";
 import AllReports from "./pages/Doctor/AllReports";
+import DoctorConsultation from "./pages/Doctor/DoctorConsultation";
 
 const App = () => {
   const { atoken } = useContext(AdminContext);
@@ -57,6 +58,10 @@ const App = () => {
             {/* <Route path="/add-report/:appointmentId" element={<Reports />} /> */}
             <Route path="/report" element={<Reports />} />
             <Route path="/reposts" element={<AllReports />} />
+            <Route
+              path="/doctor-consultation"
+              element={<DoctorConsultation />}
+            />
 
             <Route path="*" element={<NotFound />} />
           </Routes>

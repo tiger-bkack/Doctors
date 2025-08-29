@@ -27,6 +27,7 @@ const DoctorProfile = () => {
     try {
       const updateData = {
         address: docInfo.address,
+        consultation_fees: docInfo.consultation_fees,
         fees: docInfo.fees,
         avalibale: docInfo.avalibale,
         start_booked: docInfo.start_booked,
@@ -107,6 +108,27 @@ const DoctorProfile = () => {
                   />
                 ) : (
                   docInfo.fees
+                )}
+              </span>
+            </p>
+
+            <p className="text-gray-600 font-medium mt-4">
+              تكليف الأستشارة
+              <span className="text-gray-800">
+                {currency}{" "}
+                {isEdit ? (
+                  <input
+                    type="number"
+                    onChange={(e) =>
+                      setDocInfo((prev) => ({
+                        ...prev,
+                        consultation_fees: e.target.value,
+                      }))
+                    }
+                    value={docInfo.consultation_fees}
+                  />
+                ) : (
+                  docInfo.consultation_fees
                 )}
               </span>
             </p>

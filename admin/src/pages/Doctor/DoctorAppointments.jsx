@@ -2,11 +2,8 @@ import React, { useContext, useEffect, useState } from "react";
 import { DoctorContext } from "../../context/DoctorContext";
 import { AppContext } from "../../context/AppContext";
 import { assets } from "../../assets/assets";
-import { Button, Modal } from "flowbite-react";
+import { Button, Modal, Spinner, Dropdown, DropdownItem } from "flowbite-react";
 import AddReport from "../../components/AddReport";
-import { Dropdown, DropdownItem } from "flowbite-react";
-import { Spinner } from "flowbite-react";
-import { FiMoreVertical } from "react-icons/fi";
 import ViewModel from "../../components/ViewModel";
 import AddConsaltation from "../../components/AddConsaltation";
 
@@ -25,13 +22,14 @@ function DoctorAppointments() {
     dtoken,
     cancelAppointment,
     completeAppointment,
-    loader,
     docInfo,
     getDoctorProfile,
     getDoctorDashbord,
   } = useContext(DoctorContext);
-
   const { calculateAge, slotDateFormat, currency } = useContext(AppContext);
+
+  // Loader منفصل لكل زرار
+  const [loadingActions, setLoadingActions] = useState({});
 
   useEffect(() => {
     if (dtoken) {
@@ -41,7 +39,18 @@ function DoctorAppointments() {
     }
   }, [dtoken]);
 
-  // فتح المودال وربط البيانات
+  const handleCompleteAppointment = async (id) => {
+    setLoadingActions((prev) => ({ ...prev, [id]: true }));
+    await completeAppointment(id);
+    setLoadingActions((prev) => ({ ...prev, [id]: false }));
+  };
+
+  const handleCancelAppointment = async (id) => {
+    setLoadingActions((prev) => ({ ...prev, [id]: true }));
+    await cancelAppointment(id);
+    setLoadingActions((prev) => ({ ...prev, [id]: false }));
+  };
+
   const handleOpenModal = (items) => {
     setSelectedAppointment(items);
     setOpenModal(true);
@@ -59,12 +68,10 @@ function DoctorAppointments() {
 
   return (
     <div className="w-full max-w-6xl m-5">
-      <p className="mb-3 font-medium text-lg">
-        {`كل الحجوزات الخاصه بي ${docInfo.name} `}
-      </p>
+      <p className="mb-3 font-medium text-lg">{`كل الحجوزات الخاصه بي ${docInfo.name}`}</p>
 
       <div className="bg-white border border-gray-200 text-sm max-h-[80vh] min-h-[50vh] overflow-y-scroll">
-        <div className="max-sm:hidden  grid grid-cols-[0.5fr_1fr_1fr_0.5fr_2fr_1fr_1.5fr] gap-1 py-3 px-6 border-b border-gray-200">
+        <div className="max-sm:hidden grid grid-cols-[0.5fr_1fr_1fr_0.5fr_2fr_1fr_1.5fr] gap-1 py-3 px-6 border-b border-gray-200">
           <p className="hidden md:block">#</p>
           <p>المريض</p>
           <p>حاله الدفع</p>
@@ -79,7 +86,7 @@ function DoctorAppointments() {
         {appointment.map((items, index) => (
           <div
             key={items._id}
-            className="flex flex-wrap justify-between max-sm:gap-5 text-base sm:grid grid-cols-[0.5fr_1fr_1fr_0.5fr_2fr_1fr_1.5fr] gap-1 items-center py-3 px-6 border-b border-gray-200 text-gray-500 hover:bg-gray-50 transition-all duration-150  "
+            className="flex flex-wrap justify-between max-sm:gap-5 text-base sm:grid grid-cols-[0.5fr_1fr_1fr_0.5fr_2fr_1fr_1.5fr] gap-1 items-center py-3 px-6 border-b border-gray-200 text-gray-500 hover:bg-gray-50 transition-all duration-150"
           >
             <p className="hidden md:block">{index + 1}</p>
             <div className="flex items-center gap-3">
@@ -116,47 +123,37 @@ function DoctorAppointments() {
             ) : items.isCompleted ? (
               <div className="flex items-center justify-center gap-4">
                 <p className="text-green-500 text-sm font-medium">تم الكشف</p>
-                <Dropdown inline className="px-3 py-3 !bg-[#5f6fff] ">
-                  <DropdownItem
-                    onClick={() => {
-                      handleOpenModal(items);
-                    }}
-                  >
+                <Dropdown inline className="px-3 py-3 !bg-gray-200 ">
+                  <DropdownItem onClick={() => handleOpenModal(items)}>
                     أضافه تقرير
                   </DropdownItem>
-                  <DropdownItem
-                    onClick={() => {
-                      handleOpenViweModel(items);
-                    }}
-                  >
+                  <DropdownItem onClick={() => handleOpenViweModel(items)}>
                     عرض التقارير
                   </DropdownItem>
                   <DropdownItem
-                    onClick={() => {
-                      handleOpenConsualationModel(items);
-                    }}
+                    onClick={() => handleOpenConsualationModel(items)}
                   >
-                    تحتديد أستشارة
+                    تحديد أستشارة
                   </DropdownItem>
                 </Dropdown>
               </div>
             ) : (
               <div className="flex gap-0.5 ">
-                {loader ? (
-                  <p>
-                    <span className="pl-3">جاري التنفيذ...</span>
+                {loadingActions[items._id] ? (
+                  <p className="flex items-center gap-2">
+                    <span>جاري التنفيذ...</span>
                     <Spinner aria-label="Default status example" size="md" />
                   </p>
                 ) : (
-                  <div className="w-full flex items-center justify-center">
+                  <div className="w-full flex items-center justify-center gap-2">
                     <img
-                      onClick={() => cancelAppointment(items._id)}
+                      onClick={() => handleCancelAppointment(items._id)}
                       className="w-10 cursor-pointer"
                       src={assets.cancel_icon}
                       alt="cancel"
                     />
                     <img
-                      onClick={() => completeAppointment(items._id)}
+                      onClick={() => handleCompleteAppointment(items._id)}
                       className="w-10 cursor-pointer"
                       src={assets.tick_icon}
                       alt="complete"
@@ -169,7 +166,6 @@ function DoctorAppointments() {
         ))}
       </div>
 
-      {/* مودال واحد بس مربوط بالـ selectedAppointment */}
       <Modal size="5xl" show={openModal} onClose={() => setOpenModal(false)}>
         {selectedAppointment && (
           <AddReport
@@ -180,7 +176,6 @@ function DoctorAppointments() {
         )}
       </Modal>
 
-      {/*Viwe model to see user report and print this report */}
       <Modal
         size="7xl"
         show={openViewReportModel}
@@ -194,7 +189,6 @@ function DoctorAppointments() {
         )}
       </Modal>
 
-      {/*Viwe model to see user report and print this report */}
       <Modal
         size="lg"
         show={openAddConsualtationModel}

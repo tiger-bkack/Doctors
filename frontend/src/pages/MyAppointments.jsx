@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 import { useEffect } from "react";
 import { Button, Modal } from "flowbite-react";
 import UpdateConsaltation from "../components/UpdateConsaltation";
+import { useNavigate } from "react-router-dom";
+import { Spinner } from "flowbite-react";
 
 const MyAppointments = () => {
   const { token, backendUrl, getDoctorList } = useContext(AppContext);
@@ -16,6 +18,7 @@ const MyAppointments = () => {
   const [selectedAppointment, setSelectedAppointment] = useState(null);
 
   const [consaltation, setConsaltation] = useState({});
+  const navigate = useNavigate();
 
   const month = [
     "",
@@ -121,6 +124,15 @@ const MyAppointments = () => {
       getAppointments();
     }
   }, [token]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center gap-3 text-2xl">
+        <p>جاري التحميل</p>
+        <Spinner color="purple" aria-label="Purple spinner example" />
+      </div>
+    );
+  }
   return (
     <div dir="rtl">
       <p className="pb-3 mt-12 font-medium text-zinc-700 border-b">حجوزاتي</p>
@@ -137,7 +149,10 @@ const MyAppointments = () => {
             key={index}
             className="grid grid-cols-[1fr_2fr] gap-4 sm:flex sm:gap-6 py-2 border-b"
           >
-            <div className="">
+            <div
+              onClick={() => navigate(`/appointment/${item.docId}`)}
+              className="cursor-pointer"
+            >
               <img
                 className="w-32 bg-indigo-50"
                 src={item.docData.image}

@@ -176,6 +176,20 @@ const bookAppointment = async (req, res) => {
       });
     }
 
+    if (!slotDate) {
+      return res.json({
+        success: false,
+        message: "الرجاء أختيار اليوم المناسب",
+      });
+    }
+
+    if (!slotTime) {
+      return res.json({
+        success: false,
+        message: "الرجاء الختيار الوقت المناسب",
+      });
+    }
+
     let slots_booked = docData.slots_booked;
 
     // check for slot is availablity
@@ -380,10 +394,15 @@ const updateConsaltationTime = async (req, res) => {
     const consultDay = consaltation.consultDay; // اليوم موجود في الاستشارة بالفعل
     const selectedTime = consultTime;
 
+    const docId = consaltation.docId;
+    //جلب بيانات الطبيب
+    const docData = await doctorModel.findById(docId).select("-password");
+
     // تحقق لو فيه أي استشارة بنفس اليوم والوقت سواء لنفس المستخدم أو لحد تاني
     const conflict = await consultationModel.findOne({
       consultDay,
       consultTime: selectedTime,
+      amount: docData.consultation_fees,
     });
 
     if (conflict) {
@@ -408,13 +427,32 @@ const updateConsaltationTime = async (req, res) => {
   }
 };
 
-const cancelledConsultation = async (req, res) => {
+const cancelConsultation = async (req, res) => {
   try {
     const { consultationId, docId } = req.body;
     const userId = req.userId;
 
-    //هشيل الوقت من علشان يبقي ظاهر للمستخدمين التنيين
-  } catch (error) {}
+    const consultation = await consultationModel.findById(consultationId);
+    if (
+      consultation &&
+      consultation.docId.equals(docId) &&
+      consultation.userId.equals(userId)
+    ) {
+      await consultationModel.findByIdAndUpdate(consultationId, {
+        cancelled: true,
+      });
+      res.json({
+        success: true,
+        message: `تم ألغاء 
+        استشارة الماريض ${consultation.userData.name}`,
+      });
+    } else {
+      res.json({ success: false, message: "لم تنجح العملية" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
 };
 
 export {
@@ -430,4 +468,5 @@ export {
   getConsaltation,
   updateConsaltationTime,
   getAllConsaltation,
+  cancelConsultation,
 };

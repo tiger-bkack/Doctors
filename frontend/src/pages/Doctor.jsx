@@ -2,10 +2,11 @@ import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
+import { Spinner } from "flowbite-react";
 
 const Doctor = () => {
   const { speciality } = useParams();
-  const { doctors, getDoctorList } = useContext(AppContext);
+  const { doctors, getDoctorList, loader } = useContext(AppContext);
   const navigate = useNavigate();
 
   const [filterDoc, setFilterDoc] = useState([]);

@@ -2,15 +2,18 @@ import { AppContext } from "@/context/AppContext";
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { Spinner } from "flowbite-react";
 
 const MyConsultation = () => {
   const { backendUrl, token, slotDateFormat, to12HourFormat, formatDate } =
     useContext(AppContext);
 
   const [consultation, setConsultation] = useState([]);
+  const [loader, setLoader] = useState(false);
 
   const getConsultation = async () => {
     try {
+      setLoader(true);
       const { data } = await axios.post(
         backendUrl + "/api/user/all-consaltation",
         {},
@@ -26,12 +29,44 @@ const MyConsultation = () => {
     } catch (error) {
       console.log(error);
       toast.error(error.message);
+    } finally {
+      setLoader(false);
+    }
+  };
+
+  const cancelConsultation = async (consultationId, docId) => {
+    try {
+      //setLoader(true);
+      const { data } = await axios.post(
+        backendUrl + "/api/user/cancel-consultation",
+        { consultationId, docId },
+        { headers: { token } }
+      );
+      if (data.success) {
+        toast.success(data.message);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    } finally {
+      //setLoader(false)
     }
   };
 
   useEffect(() => {
     if (token) getConsultation();
   }, [token]);
+
+  if (loader) {
+    return (
+      <div className="flex items-center justify-center gap-3 text-2xl">
+        <p>جاري التحميل</p>
+        <Spinner color="purple" aria-label="Purple spinner example" />
+      </div>
+    );
+  }
   return (
     <div dir="rtl">
       <div className="">
@@ -68,29 +103,35 @@ const MyConsultation = () => {
             </div>
             <div className=""></div>
             <div className="flex flex-col gap-2 justify-end">
-              {!item.isCompleted && (
+              {!item.cancelled && !item.isCompleted && (
                 <button className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded hover:bg-[#5f6fff] hover:text-white transition-all duration-300 cursor-pointer">
                   ادفع اون لاين
                 </button>
               )}
-              {!item.isCompleted && (
+              {!item.cancelled && !item.isCompleted && (
                 <button
-                  onClick={() => cancelAppointment(item._id)}
+                  onClick={() => cancelConsultation(item._id, item.docId)}
                   className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded hover:bg-red-600 hover:text-white transition-all duration-300 cursor-pointer"
                 >
-                  ألغاء الحجز
+                  ألغاء الأستشارة
+                </button>
+              )}
+              {item.cancelled && (
+                <button className="sm:min-w-48 py-2 border border-red-500 rounded text-red-500 cursor-pointer">
+                  تم ألغاء ابأستشارة
                 </button>
               )}
               {item.isCompleted && (
                 <div className="flex flex-col gap-3">
-                  <button className="sm:min-w-48 py-2 border border-[#5f6fff] hover:bg-[#5f6fff]  transition-all duration-300 hover:text-white rounded text-[#5f6fff] cursor-pointer">
-                    استشارة
-                  </button>
-
                   <button className="sm:min-w-48 py-2 border border-green-500 rounded text-green-500 hover:bg-green-500  transition-all duration-300 hover:text-white cursor-pointer">
-                    تم الكشف
+                    تم الأستشارة
                   </button>
                 </div>
+              )}
+              {item.payment && (
+                <button className="sm:min-w-48 py-2 border border-green-500 rounded text-green-500 hover:bg-green-500  transition-all duration-300 hover:text-white cursor-pointer">
+                  تم الدفع
+                </button>
               )}
             </div>
           </div>
