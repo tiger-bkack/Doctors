@@ -483,7 +483,7 @@ const createConsaltation = async (req, res) => {
 
     // تأكد إن يوم الاستشارة بعد يوم الحجز
     // لازم نحول slotDate لـ Date
-    const [day, month, year] = appointmentData.slotDate.split("_");
+    const [day, month, year] = appointmentData.slotDate.split("-");
     const appointmentDate = new Date(`${year}-${month}-${day}`);
     const consultDate = new Date(consultDay);
 
