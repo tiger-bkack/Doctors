@@ -33,7 +33,7 @@ const Navbar = () => {
 
       <button
         onClick={() => logout()}
-        className="bg-[#5f6fff] border text-white rounded-full px-10 py-2 text-sm cursor-pointer hover:bg-[#5f6fffc4] transition-all duration-100"
+        className="bg-[#5f6fff] border-none text-white rounded-full px-10 py-2 text-sm cursor-pointer hover:bg-[#5f6fffc4] transition-all duration-100"
       >
         تسجل الخروج
       </button>

@@ -17,6 +17,7 @@ import {
   createConsaltation,
   consultationCompeleted,
   cancelConsultation,
+  doctorConsultation,
 } from "../controllers/doctorController.js";
 import authDoctor from "../middlewares/authDoctor.js";
 
@@ -55,5 +56,7 @@ doctorRouter.post("/add-consualtation", authDoctor, createConsaltation);
 doctorRouter.post("/complete-consultation", authDoctor, consultationCompeleted);
 
 doctorRouter.post("/cancel-consultation", authDoctor, cancelConsultation);
+
+doctorRouter.post("/consultation", authDoctor, doctorConsultation);
 
 export default doctorRouter;

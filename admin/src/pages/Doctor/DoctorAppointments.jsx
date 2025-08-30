@@ -25,6 +25,7 @@ function DoctorAppointments() {
     docInfo,
     getDoctorProfile,
     getDoctorDashbord,
+    getConsultation,
   } = useContext(DoctorContext);
   const { calculateAge, slotDateFormat, currency } = useContext(AppContext);
 
@@ -36,6 +37,7 @@ function DoctorAppointments() {
       getAppointments();
       getDoctorDashbord();
       getDoctorProfile();
+      getConsultation();
     }
   }, [dtoken]);
 
@@ -71,7 +73,7 @@ function DoctorAppointments() {
       <p className="mb-3 font-medium text-lg">{`كل الحجوزات الخاصه بي ${docInfo.name}`}</p>
 
       <div className="bg-white border border-gray-200 text-sm max-h-[80vh] min-h-[50vh] overflow-y-scroll">
-        <div className="max-sm:hidden grid grid-cols-[0.5fr_1fr_1fr_0.5fr_2fr_1fr_1.5fr] gap-1 py-3 px-6 border-b border-gray-200">
+        <div className="max-sm:hidden grid grid-cols-[0.5fr_1fr_0.5fr_0.5fr_2fr_0.5fr_1fr] gap-1 py-3 px-6 border-b border-gray-200">
           <p className="hidden md:block">#</p>
           <p>المريض</p>
           <p>حاله الدفع</p>
@@ -86,7 +88,7 @@ function DoctorAppointments() {
         {appointment.map((items, index) => (
           <div
             key={items._id}
-            className="flex flex-wrap justify-between max-sm:gap-5 text-base sm:grid grid-cols-[0.5fr_1fr_1fr_0.5fr_2fr_1fr_1.5fr] gap-1 items-center py-3 px-6 border-b border-gray-200 text-gray-500 hover:bg-gray-50 transition-all duration-150"
+            className="flex flex-wrap justify-between  text-base sm:grid grid-cols-[0.5fr_1fr_0.5fr_0.5fr_2fr_0.5fr_1fr] gap-1 items-center py-3 px-6   border-b border-gray-200 text-gray-500 hover:bg-gray-50 transition-all duration-150"
           >
             <p className="hidden md:block">{index + 1}</p>
             <div className="flex items-center gap-3">

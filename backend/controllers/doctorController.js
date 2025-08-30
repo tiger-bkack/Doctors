@@ -526,6 +526,23 @@ const cancelConsultation = async (req, res) => {
   }
 };
 
+// get all consultation to doctor
+const doctorConsultation = async (req, res) => {
+  try {
+    const docId = req.docId;
+
+    const consualtations = await consultationModel.find({ docId });
+
+    if (!consualtations) {
+      res.json({ success: true, message: "لاتوجد أي استشارات حالياً" });
+    }
+
+    res.json({ success: true, consualtations });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 export {
   changeAvalibality,
   doctorList,
@@ -545,4 +562,5 @@ export {
   createConsaltation,
   consultationCompeleted,
   cancelConsultation,
+  doctorConsultation,
 };
