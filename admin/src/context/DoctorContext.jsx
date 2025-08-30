@@ -293,10 +293,7 @@ const DoctorContextProvider = (props) => {
     getConsultation,
     consultation,
     consultationMesssage,
-<<<<<<< HEAD
     deletedSlotsBooked,
-=======
->>>>>>> fd96022f4fa80202a4342836c3a7bb41c2dcbf4d
   };
 
   return (
