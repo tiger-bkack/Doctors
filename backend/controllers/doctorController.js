@@ -82,7 +82,20 @@ const appointmentCompleted = async (req, res) => {
       await appointmentModel.findByIdAndUpdate(appointmentId, {
         isCompleted: true,
       });
-      res.json({ success: true, message: "تم الانتهاء من الكشق بنجاح" });
+      const { docId, slotDate, slotTime } = appointmentData;
+      const doctorData = await doctorModel.findById(docId);
+      let slots_booked = doctorData.slots_booked;
+
+      slots_booked[slotDate] = slots_booked[slotDate].filter(
+        (e) => e !== slotTime
+      );
+
+      await doctorModel.findByIdAndUpdate(docId, { slots_booked });
+
+      res.json({
+        success: true,
+        message: `أكتمل الكشف من قبل الطبيب ${appointmentData.docData.name}`,
+      });
     } else {
       res.json({ success: false, message: "لم تنجح العملية" });
     }
@@ -101,12 +114,41 @@ const appointmentCancel = async (req, res) => {
       await appointmentModel.findByIdAndUpdate(appointmentId, {
         cancelled: true,
       });
+
+      const { docId, slotDate, slotTime } = appointmentData;
+      const doctorData = await doctorModel.findById(docId);
+      let slots_booked = doctorData.slots_booked;
+
+      slots_booked[slotDate] = slots_booked[slotDate].filter(
+        (e) => e !== slotTime
+      );
+
+      await doctorModel.findByIdAndUpdate(docId, { slots_booked });
+
       res.json({
         success: true,
-        message: `تم الكشف من قبل الطبيب ${appointmentData.docData.name}`,
+        message: `تم ألغاء الكشف من قبل ال ${appointmentData.docData.name}`,
       });
     } else {
       res.json({ success: false, message: "لم تنجح العملية" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// deleted all slots booked from doctor
+const deleteSlotsBooked = async (req, res) => {
+  try {
+    const docId = req.docId;
+
+    const docSlots = await doctorModel.findByIdAndUpdate(docId, {
+      slots_booked: {},
+    });
+
+    if (docSlots) {
+      return res.json({ success: true, message: " تمت العملية يانجم النجوم" });
     }
   } catch (error) {
     console.log(error);
@@ -526,6 +568,23 @@ const cancelConsultation = async (req, res) => {
   }
 };
 
+// get all consultation to doctor
+const doctorConsultation = async (req, res) => {
+  try {
+    const docId = req.docId;
+
+    const consualtations = await consultationModel.find({ docId });
+
+    if (!consualtations) {
+      res.json({ success: true, message: "لاتوجد أي استشارات حالياً" });
+    }
+
+    res.json({ success: true, consualtations });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 export {
   changeAvalibality,
   doctorList,
@@ -545,4 +604,6 @@ export {
   createConsaltation,
   consultationCompeleted,
   cancelConsultation,
+  doctorConsultation,
+  deleteSlotsBooked,
 };

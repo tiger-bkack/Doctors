@@ -11,7 +11,7 @@ const consultationSchema = mongoose.Schema({
   userId: { type: mongoose.Schema.ObjectId, ref: "user", required: true },
   userData: { type: Object, required: true },
   docData: { type: Object, required: true },
-  consultDay: { type: Date, required: true },
+  consultDay: { type: String, required: true },
   consultTime: { type: String },
   amount: { type: Number, required: true },
   isCompleted: { type: Boolean, default: false },

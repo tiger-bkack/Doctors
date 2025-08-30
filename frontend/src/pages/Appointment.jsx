@@ -34,7 +34,7 @@ const Appointment = () => {
     console.log(docInfo);
   };
 
-  const getAvalidablSlats = () => {
+  const getAvalidablSlats = async () => {
     if (!doctorInfo || !doctorInfo.start_booked) return;
 
     setDocSlots([]);
@@ -44,6 +44,7 @@ const Appointment = () => {
     let today = new Date();
 
     for (let i = 0; i < 7; i++) {
+      // getting date with index
       let currentDate = new Date(today);
       currentDate.setDate(today.getDate() + i);
 
@@ -53,43 +54,52 @@ const Appointment = () => {
       let endTime = new Date(currentDate);
       endTime.setHours(to, 0, 0, 0);
 
-      // لو النهاردة → ابدأ من الساعة الحالية على الأقل
-      if (i === 0) {
-        const now = new Date();
-        if (now > startTime) startTime = new Date(now.getTime() + 60 * 1000); // بعد دقيقة
+      //setting hours
+      if (today.getDate() === currentDate.getDate()) {
+        currentDate.setHours(
+          currentDate.getHours() > 10 ? currentDate.getHours() + 1 : 10
+        );
+        currentDate.setMinutes(currentDate.getMinutes() > 30 ? 30 : 0);
+      } else {
+        currentDate.setHours(10);
+        currentDate.setMinutes(0);
       }
 
       let timeSlote = [];
       let loopTime = new Date(startTime);
 
-      while (loopTime < endTime) {
-        let formatedTime = loopTime.toLocaleTimeString([], {
+      while (currentDate < endTime) {
+        let formatedTime = currentDate.toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
         });
 
-        let day = loopTime.getDate();
-        let month = loopTime.getMonth() + 1;
-        let year = loopTime.getFullYear();
-        const slotDate = `${day}_${month}_${year}`;
+        let day = currentDate.getDate();
+        let month = currentDate.getMonth() + 1;
+        let year = currentDate.getFullYear();
+        //const slotDate = day + "-" + month + "-" + year;
+        const slotDate = `${year}-${String(month).padStart(2, "0")}-${String(
+          day
+        ).padStart(2, "0")}`;
         const slotTime = formatedTime;
 
         // لو مش محجوز بالفعل
-        const isSlotAvailable = doctorInfo.slots_booked?.[slotDate]?.includes(
-          slotTime
-        )
-          ? false
-          : true;
+        const isSlotAvailable =
+          doctorInfo.slots_booked[slotDate] &&
+          doctorInfo.slots_booked[slotDate].includes(slotTime)
+            ? false
+            : true;
 
         if (isSlotAvailable) {
+          // add slote to array
           timeSlote.push({
-            dateTime: new Date(loopTime),
+            dateTime: new Date(currentDate),
             time: formatedTime,
           });
         }
 
-        // زود مدة الكشف
-        loopTime.setMinutes(loopTime.getMinutes() + booking_period);
+        // Increment current time by 30 minuts
+        currentDate.setMinutes(currentDate.getMinutes() + booking_period);
       }
 
       setDocSlots((prev) => [...prev, timeSlote]);
@@ -107,7 +117,10 @@ const Appointment = () => {
       let month = date.getMonth() + 1;
       let year = date.getFullYear();
 
-      const slotDate = day + "_" + month + "_" + year;
+      //const slotDate = year + "-" + month + "-" + day;
+      const slotDate = `${year}-${String(month).padStart(2, "0")}-${String(
+        day
+      ).padStart(2, "0")}`;
 
       //console.log(slotDate);
 

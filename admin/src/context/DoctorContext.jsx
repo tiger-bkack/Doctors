@@ -17,6 +17,10 @@ const DoctorContextProvider = (props) => {
   const [userData, setUserData] = useState(false);
 
   const [reportData, setReportData] = useState([]);
+
+  const [consultation, setConsultation] = useState([]);
+  const [consultationMesssage, setConsultationMessage] = useState("");
+
   const [userReportWithDoctor, setUserReportWithDoctor] = useState([]);
 
   const getAppointments = async () => {
@@ -124,6 +128,22 @@ const DoctorContextProvider = (props) => {
     }
   };
 
+  const deletedSlotsBooked = async () => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/doctor/delete-slots",
+        {},
+        { headers: { dtoken } }
+      );
+      if (data.success) {
+        toast.success(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
   const getAllReport = async () => {
     try {
       const { data } = await axios.post(
@@ -224,6 +244,28 @@ const DoctorContextProvider = (props) => {
       setLoader(false);
     }
   };
+
+  const getConsultation = async () => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/doctor/consultation",
+        {},
+        { headers: { dtoken } }
+      );
+
+      if (data.success) {
+        console.log(data.consualtations);
+        setConsultation(data.consualtations);
+      } else {
+        console.log(data.message);
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
   const value = {
     dtoken,
     setDtoken,
@@ -248,6 +290,10 @@ const DoctorContextProvider = (props) => {
     userData,
     completeConsultation,
     cancelConsultation,
+    getConsultation,
+    consultation,
+    consultationMesssage,
+    deletedSlotsBooked,
   };
 
   return (

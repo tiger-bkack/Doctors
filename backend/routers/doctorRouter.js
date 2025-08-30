@@ -17,6 +17,8 @@ import {
   createConsaltation,
   consultationCompeleted,
   cancelConsultation,
+  doctorConsultation,
+  deleteSlotsBooked,
 } from "../controllers/doctorController.js";
 import authDoctor from "../middlewares/authDoctor.js";
 
@@ -38,6 +40,8 @@ doctorRouter.post("/profile", authDoctor, doctorProfile);
 
 doctorRouter.post("/update-profile", authDoctor, doctorProfileUpdate);
 
+doctorRouter.post("/delete-slots", authDoctor, deleteSlotsBooked);
+
 doctorRouter.post("/add-report", authDoctor, addReport);
 
 doctorRouter.post("/update-report", authDoctor, editReport);
@@ -55,5 +59,7 @@ doctorRouter.post("/add-consualtation", authDoctor, createConsaltation);
 doctorRouter.post("/complete-consultation", authDoctor, consultationCompeleted);
 
 doctorRouter.post("/cancel-consultation", authDoctor, cancelConsultation);
+
+doctorRouter.post("/consultation", authDoctor, doctorConsultation);
 
 export default doctorRouter;

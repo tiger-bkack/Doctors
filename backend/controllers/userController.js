@@ -391,30 +391,63 @@ const updateConsaltationTime = async (req, res) => {
       });
     }
 
-    const consultDay = consaltation.consultDay; // اليوم موجود في الاستشارة بالفعل
+    const consultDay = consaltation.consultDay;
     const selectedTime = consultTime;
-
     const docId = consaltation.docId;
-    //جلب بيانات الطبيب
-    const docData = await doctorModel.findById(docId).select("-password");
 
-    // تحقق لو فيه أي استشارة بنفس اليوم والوقت سواء لنفس المستخدم أو لحد تاني
-    const conflict = await consultationModel.findOne({
-      consultDay,
-      consultTime: selectedTime,
-      amount: docData.consultation_fees,
+    // جلب بيانات الطبيب
+    const docData = await doctorModel.findById(docId).select("-password");
+    let slots_booked = docData.slots_booked || {};
+
+    // 1️⃣ تحقق من وجود حجز موعد (appointment) بنفس اليوم والوقت
+    const appointmentConflict = await appointmentModel.findOne({
+      docId,
+      slotDate: consultDay,
+      slotTime: selectedTime,
     });
 
-    if (conflict) {
+    if (appointmentConflict) {
       return res.json({
         success: false,
-        message: "هذا الوقت تم حجزه بالفعل، اختر وقت آخر",
+        message: "هذا الوقت محجوز بالفعل لموعد، اختر وقت آخر",
       });
     }
+
+    // 2️⃣ تحقق من وجود استشارة (consultation) بنفس اليوم والوقت
+    const consultationConflict = await consultationModel.findOne({
+      docId,
+      consultDay,
+      consultTime: selectedTime,
+      _id: { $ne: consaltationId }, // استثني الاستشارة الحالية
+    });
+
+    if (consultationConflict) {
+      return res.json({
+        success: false,
+        message: "هذا الوقت محجوز بالفعل لاستشارة أخرى، اختر وقت آخر",
+      });
+    }
+
+    // 3️⃣ تحقق من الـ slots_booked
+    if (slots_booked[consultDay]?.includes(selectedTime)) {
+      return res.json({
+        success: false,
+        message: "هذا الوقت ليس متاح",
+      });
+    }
+
+    // لو فاضي ضيف الوقت الجديد
+    if (!slots_booked[consultDay]) {
+      slots_booked[consultDay] = [];
+    }
+    slots_booked[consultDay].push(selectedTime);
 
     // تحديث الاستشارة
     consaltation.consultTime = selectedTime;
     await consaltation.save();
+
+    // تحديث الطبيب
+    await doctorModel.findByIdAndUpdate(docId, { slots_booked });
 
     res.json({
       success: true,
@@ -441,6 +474,18 @@ const cancelConsultation = async (req, res) => {
       await consultationModel.findByIdAndUpdate(consultationId, {
         cancelled: true,
       });
+
+      const { consultDay, consultTime } = consultation;
+
+      const doctorData = await doctorModel.findById(docId);
+      let slots_booked = doctorData.slots_booked;
+
+      slots_booked[slotDate] = slots_booked[slotDate].filter(
+        (e) => e !== slotTime
+      );
+
+      await doctorModel.findByIdAndUpdate(docId, { slots_booked });
+
       res.json({
         success: true,
         message: `تم ألغاء 

@@ -8,8 +8,14 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const DoctorProfile = () => {
-  const { getDoctorProfile, dtoken, docInfo, setDocInfo, backendUrl } =
-    useContext(DoctorContext);
+  const {
+    getDoctorProfile,
+    dtoken,
+    docInfo,
+    setDocInfo,
+    backendUrl,
+    deletedSlotsBooked,
+  } = useContext(DoctorContext);
   const { currency } = useContext(AppContext);
 
   const [isEdit, setIsEdit] = useState(false);
@@ -131,6 +137,15 @@ const DoctorProfile = () => {
                   docInfo.consultation_fees
                 )}
               </span>
+            </p>
+
+            <p className="text-gray-600 font-medium mt-4">
+              <button
+                className="py-3 px-6 bg-[#5f6fff] text-white cursor-pointer"
+                onClick={() => deletedSlotsBooked()}
+              >
+                حذف كل الحجزات ل
+              </button>
             </p>
 
             <p className="text-gray-600 font-medium mt-4">

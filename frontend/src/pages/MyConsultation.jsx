@@ -3,11 +3,13 @@ import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { Spinner } from "flowbite-react";
+import { useNavigate } from "react-router-dom";
 
 const MyConsultation = () => {
   const { backendUrl, token, slotDateFormat, to12HourFormat, formatDate } =
     useContext(AppContext);
 
+  const navigate = useNavigate();
   const [consultation, setConsultation] = useState([]);
   const [loader, setLoader] = useState(false);
 
@@ -75,7 +77,10 @@ const MyConsultation = () => {
             key={index}
             className="grid grid-cols-[1fr_2fr] gap-4 sm:flex sm:gap-6 py-2 border-b"
           >
-            <div className="">
+            <div
+              onClick={() => navigate(`/appointment/${item.docId}`)}
+              className="cursor-pointer"
+            >
               <img
                 className="w-32 bg-indigo-50"
                 src={item.appointmentData.docData.image}
