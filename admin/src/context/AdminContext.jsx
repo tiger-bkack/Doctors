@@ -102,6 +102,25 @@ const AdminContextProvider = (props) => {
     }
   };
 
+  const cancelledConsultation = async (consultationId, docId, userId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/admin/canceled-consultation",
+        { consultationId, docId, userId },
+        { headers: { atoken } }
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
   const value = {
     atoken,
     setAtoken,
@@ -115,6 +134,7 @@ const AdminContextProvider = (props) => {
     cancelAppointment,
     dashData,
     getDashData,
+    cancelledConsultation,
   };
 
   return (

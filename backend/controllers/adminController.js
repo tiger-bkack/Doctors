@@ -5,6 +5,8 @@ import doctorModel from "../models/doctorModel.js";
 import jwt from "jsonwebtoken";
 import appointmentModel from "../models/appointmentModel.js";
 import userModel from "../models/userModel.js";
+import consultationModel from "../models/consultationModel.js";
+import reportModel from "../models/reportModel.js";
 
 //API for adding a doctor
 const addDoctor = async (req, res) => {
@@ -177,14 +179,60 @@ const adminDashbord = async (req, res) => {
     const doctors = await doctorModel.find({});
     const users = await userModel.find({});
     const appointments = await appointmentModel.find({});
+    const consultations = await consultationModel.find({});
+    const reporsts = await reportModel.find({});
 
     const dashData = {
       doctors: doctors.length,
       users: users.length,
       appointments: appointments.length,
+      consultations: consultations.length,
+      reporsts: reporsts.length,
       lastAppointment: appointments.reverse().slice(0, 5),
+      lastConsultation: consultations.reverse().slice(0, 5),
     };
     res.json({ success: true, dashData });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+const cancelConsultation = async (req, res) => {
+  try {
+    const { consultationId, userId, docId } = req.body;
+
+    const consultation = await consultationModel.findById(consultationId);
+    if (
+      consultation &&
+      consultation.docId.equals(docId) &&
+      consultation.userId.equals(userId)
+    ) {
+      await consultationModel.findByIdAndUpdate(consultationId, {
+        cancelled: true,
+      });
+      res.json({
+        success: true,
+        message: `تم ألغاء 
+        استشارة الماريض ${consultation.userData.name}`,
+      });
+    } else {
+      res.json({ success: false, message: "لم تنجح العملية" });
+    }
+
+    // releasing doctor slot
+
+    const { consultDay, consultTime } = consultation;
+
+    const doctorData = await doctorModel.findById(docId);
+
+    let slots_booked = doctorData.slots_booked;
+
+    slots_booked[consultDay] = slots_booked[consultDay].filter(
+      (e) => e !== consultTime
+    );
+
+    await doctorModel.findByIdAndUpdate(docId, { slots_booked });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
@@ -219,4 +267,5 @@ export {
   cancelAppointment,
   adminDashbord,
   removeDoctor,
+  cancelConsultation,
 };

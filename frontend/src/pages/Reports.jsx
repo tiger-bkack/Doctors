@@ -23,7 +23,7 @@ const Reports = () => {
   }, [token]);
 
   return (
-    <div className="flex justify-between items-center flex-col gap-5">
+    <div className="flex justify-between items-center  gap-5">
       <div className="flex-1 flex items-center justify-center">
         <Card className=" max-h-[300px] min-h-[300px] max-w-[100px]  min-w-[250px] !bg-[#636bb3] border-none  drop-shadow-2xl">
           <div className="flex flex-col items-center pb-10">

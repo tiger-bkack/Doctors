@@ -6,8 +6,8 @@ import {
   ModalFooter,
   ModalHeader,
 } from "flowbite-react";
-import { AppContext } from "../context/AppContext";
-import { DoctorContext } from "../context/DoctorContext";
+import { AppContext } from "../../context/AppContext";
+import { DoctorContext } from "../../context/DoctorContext";
 import { toast } from "react-toastify";
 import axios from "axios";
 const AddReport = ({ appointmentId, items, setOpenModal }) => {
@@ -76,38 +76,48 @@ const AddReport = ({ appointmentId, items, setOpenModal }) => {
     }
   };
   return (
-    <div className="bg-gray-100  rounded-2xl">
+    <div className="bg-gray-50  rounded-2xl">
       <>
-        <ModalHeader className=" bg-[#5f6fff] h-15">Add Report</ModalHeader>
+        <ModalHeader className="bg-[#5f6fff] h-15">
+          <span className="text-white font-semibold">أضافة تقرير</span>
+        </ModalHeader>
         <ModalBody>
           <div className="text-black ">
             {/* بيانات المريض */}
-            <div className="grid grid-cols-2 gap-5 border-b pb-3">
+            <div className="grid grid-cols-2 gap-5 border-b border-gray-500 pb-3">
               <div>
                 <p>
-                  <span className="font-bold">Name :</span>{" "}
+                  <span className="font-bold text-[#5f6fff] pr-3">Name :</span>{" "}
                   {items.userData.name}
                 </p>
                 <p>
-                  <span className="font-bold">Age :</span>{" "}
+                  <span className="font-bold text-[#5f6fff] pr-5">Age :</span>{" "}
                   {calculateAge(items.userData.dob)}
                 </p>
                 <p>
-                  <span className="font-bold">Department :</span>{" "}
+                  <span className="font-bold text-[#5f6fff] pr-3">
+                    Department :
+                  </span>{" "}
                   {items.docData.speciality}
                 </p>
               </div>
               <div>
                 <p>
-                  <span className="font-bold">Issue Date :</span>{" "}
+                  <span className="font-bold text-[#5f6fff] pr-4">
+                    Issue Date :
+                  </span>{" "}
                   {slotDateFormat(items.slotDate)}
                 </p>
                 <p>
-                  <span className="font-bold">Gender :</span>{" "}
+                  <span className="font-bold text-[#5f6fff] pr-10">
+                    Gender :
+                  </span>{" "}
                   {items.userData.gender}
                 </p>
                 <p>
-                  <span className="font-bold">Phone No :</span>{" "}
+                  <span className="font-bold text-[#5f6fff] pr-5">
+                    Phone No :
+                  </span>{" "}
                   {items.userData.phone}
                 </p>
               </div>
@@ -240,10 +250,10 @@ const AddReport = ({ appointmentId, items, setOpenModal }) => {
         <ModalFooter>
           {/* مربوط بالفورم */}
           <Button type="submit" form="reportForm">
-            {loader ? "Saving..." : "Save Report"}
+            {loader ? "جاري الحفظ..." : "حفظ التقارير"}
           </Button>
           <Button color="alternative" onClick={() => setOpenModal(false)}>
-            Cancel
+            ألغاء
           </Button>
         </ModalFooter>
       </>

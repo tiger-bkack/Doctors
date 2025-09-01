@@ -1,0 +1,259 @@
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { DoctorContext } from "../../context/DoctorContext";
+import { assets } from "../../assets/assets";
+import { AppContext } from "../../context/AppContext";
+import { Button, Modal } from "flowbite-react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+
+import { FaPrint, FaRegEdit, FaSave, FaShare } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
+import EditReport from "@/components/Reports/EditReport";
+
+const AllReports = () => {
+  const { getAllReport, dtoken, reportData, deletedReport, docInfo } =
+    useContext(DoctorContext);
+  const { calculateAge, slotDateFormat } = useContext(AppContext);
+  const [selectReport, setSelectReport] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
+
+  const reportRefs = useRef([]);
+
+  const handlePrint = async (element) => {
+    if (!element) return;
+    const canvas = await html2canvas(element, { scale: 2 });
+    const data = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "px",
+      format: "a4",
+    });
+
+    const image = pdf.getImageProperties(data);
+    const pdfWidht = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (image.height * pdfWidht) / image.width;
+
+    pdf.addImage(data, "PNG", 0, 0, pdfWidht, pdfHeight);
+    pdf.save("report.pdf");
+  };
+
+  const handleUpdateReport = async (reportItem) => {
+    setSelectReport(reportItem);
+    setOpenModal(true);
+  };
+
+  useEffect(() => {
+    if (dtoken) {
+      getAllReport();
+    }
+  }, [dtoken]);
+
+  return (
+    reportData && (
+      <div dir="ltr" className="w-full max-w-6xl m-5">
+        <div className="w-full flex justify-center">
+          <p className="mb-3 font-semibold uppercase text-2xl">{`كل التقارير الخاص بالطبيب ${
+            docInfo ? docInfo.name : ""
+          }`}</p>
+        </div>
+
+        <div className="max-h-[95vh] min-h-[90vh] overflow-y-scroll">
+          {(Array.isArray(reportData) ? reportData : [reportData]).map(
+            (items, index) => (
+              <div
+                key={items._id || index}
+                className="flex flex-col justify-center items-center"
+              >
+                {/* أزرار التحكم */}
+                <div
+                  dir="rtl"
+                  className="mt-10 w-auto bg-white m-auto shadow-lg my-0 flex items-center justify-baseline"
+                >
+                  <button
+                    className="py-1 px-10  flex items-center justify-center gap-2 group cursor-pointer border-l-1 border-gray-500"
+                    onClick={() => handlePrint(reportRefs.current[index])}
+                  >
+                    <p className="text-gray-500 group-hover:text-gray-900 transition-all duration-150">
+                      طباعه
+                    </p>
+                    <FaPrint className="text-[20px] text-gray-500 group-hover:text-gray-900 transition-all duration-150" />
+                  </button>
+
+                  <button
+                    onClick={() => handleUpdateReport(items)}
+                    className="py-1 px-10  flex items-center justify-center gap-2 group cursor-pointer border-l-1 border-gray-500"
+                  >
+                    <p className="text-gray-500 group-hover:text-gray-900 transition-all duration-150">
+                      تعديل
+                    </p>
+                    <FaRegEdit className="text-[20px] text-gray-500 group-hover:text-gray-900 transition-all duration-150" />
+                  </button>
+
+                  <button
+                    onClick={() => deletedReport(items._id)}
+                    className="py-1 px-10  flex items-center justify-center gap-2 group cursor-pointer border-l-1 border-gray-500"
+                  >
+                    <p className="text-gray-500 group-hover:text-gray-900 transition-all duration-150">
+                      حذف
+                    </p>
+                    <MdDelete className="text-[20px] text-gray-500 group-hover:text-gray-900 transition-all duration-150" />
+                  </button>
+
+                  <button className="py-1 px-10  flex items-center justify-center gap-2 group cursor-pointer">
+                    <p className="text-gray-500 group-hover:text-gray-900 transition-all duration-150">
+                      مشاركة
+                    </p>
+                    <FaShare className="text-[20px] text-gray-500 group-hover:text-gray-900 transition-all duration-150" />
+                  </button>
+                </div>
+
+                {/* التقرير نفسه */}
+                <div
+                  ref={(el) => (reportRefs.current[index] = el)}
+                  className="p-15 mt-1 shadow-lg bg-white mx-auto my-8"
+                  style={{
+                    width: "210mm", // A4 width
+                    minHeight: "297mm", // A4 height
+                    padding: "20mm",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  {/* Header */}
+                  <div>
+                    <div className="text-center mb-4 border-b pb-5">
+                      <div className="flex items-center justify-center gap-2">
+                        <img className="w-20" src={assets.logo} alt="logo" />
+                        <div>
+                          <p className="text-3xl font-bold">سلامـتك</p>
+                          <p className="text-sm text-gray-500">
+                            راحة . طمأنينة
+                          </p>
+                        </div>
+                      </div>
+                      <h2 className="text-lg font-semibold mt-2">
+                        مجمع الخدمات الطبية
+                      </h2>
+                      <h3 className="text-base">Medical Report</h3>
+                    </div>
+
+                    {/* Report body */}
+                    <div className="report-body ">
+                      <div className="grid grid-cols-2 gap-5 border-b py-4">
+                        <div>
+                          <p>
+                            <span className="font-bold">Name :</span>{" "}
+                            {items.userData?.name || "N/A"}
+                          </p>
+                          <p>
+                            <span className="font-bold">Age :</span>{" "}
+                            {items.userData?.dob
+                              ? calculateAge(items.userData.dob)
+                              : "N/A"}
+                          </p>
+                          <p>
+                            <span className="font-bold">Nationality :</span>{" "}
+                            {items.userData?.nationality || "Egyptian"}
+                          </p>
+                          <p>
+                            <span className="font-bold">Department :</span>{" "}
+                            {items.docData?.speciality || "N/A"}
+                          </p>
+                        </div>
+                        <div>
+                          <p>
+                            <span className="font-bold">Issue Date :</span>{" "}
+                            {items.appointmentData?.slotDate
+                              ? slotDateFormat(items.appointmentData.slotDate)
+                              : "N/A"}
+                          </p>
+                          <p>
+                            <span className="font-bold">Gender :</span>{" "}
+                            {items.userData?.gender || "N/A"}
+                          </p>
+                          <p>
+                            <span className="font-bold">Phone No :</span>{" "}
+                            {items.userData?.phone || "N/A"}
+                          </p>
+                          <p>
+                            <span className="font-bold">DR.w.report :</span>{" "}
+                            {items.docData?.name || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-10">
+                        <p>
+                          <span className="font-bold">Complaint :</span>{" "}
+                          {items.complaint || "N/A"}
+                        </p>
+                        <p>
+                          <span className="font-bold">Examination :</span>{" "}
+                          {items.examination || "N/A"}
+                        </p>
+                        <p>
+                          <span className="font-bold">Diagnosis :</span>{" "}
+                          {items.diagnosis || "N/A"}
+                        </p>
+                        <div>
+                          <span className="font-bold">Treatment :</span>
+                          <ul className="list-disc pl-6">
+                            {items.treatment?.map((treat, i) => (
+                              <li key={treat._id || i}>
+                                {treat.name}{" "}
+                                {treat.dosage && -`${treat.dosage}`}{" "}
+                                {treat.duration && treat.duration}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <p>
+                          <span className="font-bold">Notes :</span>{" "}
+                          {items.notes || "N/A"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Doctor Signature + Footer */}
+                  <div>
+                    <div className="flex justify-between items-end mt-10 mb-30">
+                      <div>
+                        <p className="italic">{items.docData?.name || "N/A"}</p>
+                        <p className="italic text-xs text-gray-500">
+                          Doctor Signature
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Footer */}
+                    <footer className="border-t pt-2 mt-6 text-center text-xs text-gray-600">
+                      <p>© 2025 جميع الحقوق محفوظة - مجمع الخدمات الطبية</p>
+                    </footer>
+                  </div>
+                </div>
+              </div>
+            )
+          )}
+          <Modal
+            size="6xl"
+            show={openModal}
+            onClose={() => setOpenModal(false)}
+          >
+            {selectReport && (
+              <EditReport
+                doctorInfo={selectReport.docData}
+                setOpenModal={setOpenModal}
+                reportInfo={selectReport}
+              />
+            )}
+          </Modal>
+        </div>
+      </div>
+    )
+  );
+};
+
+export default AllReports;

@@ -9,7 +9,7 @@ import {
 import { useState } from "react";
 import axios from "axios";
 import { useContext } from "react";
-import { DoctorContext } from "../context/DoctorContext";
+import { DoctorContext } from "../../context/DoctorContext";
 import { toast } from "react-toastify";
 
 const AddConsaltation = ({ setOpenAddConsualtationModel, items }) => {
@@ -51,12 +51,16 @@ const AddConsaltation = ({ setOpenAddConsualtationModel, items }) => {
 
   return (
     <div>
-      <ModalHeader>Create Consualtation</ModalHeader>
+      <ModalHeader className="bg-[#5f6fff] border-white">
+        <span className="text-white font-semibold">تحديد أستشارة</span>
+      </ModalHeader>
       <ModalBody>
-        <div className="space-y-3  ">
+        <div dir="rtl" className="space-y-3  ">
           <form onSubmit={handelAddConsaltation} id="consaltation">
             <div className="space-y-3">
-              <p className="text-black text-lg">chose day to consaltation :</p>
+              <p className="text-black text-lg">
+                أختار يوم الاستشارة المناسب :
+              </p>
               <input
                 value={consaltationDay}
                 onChange={(e) => setConsaltationDay(e.target.value)}
@@ -68,7 +72,7 @@ const AddConsaltation = ({ setOpenAddConsualtationModel, items }) => {
               {message ? message : ""}
             </p>
             <div className="space-y-2 mt-5">
-              <p className="text-black text-lg">If you have any notes :</p>
+              <p className="text-black text-lg">أذا كان لديك اي ملاحظات :</p>
               <textarea
                 value={consaltationNotes}
                 onChange={(e) => setConsaltationNotes(e.target.value)}
@@ -82,13 +86,13 @@ const AddConsaltation = ({ setOpenAddConsualtationModel, items }) => {
       </ModalBody>
       <ModalFooter>
         <Button form="consaltation" type="submit">
-          Save
+          حفظ
         </Button>
         <Button
           color="alternative"
           onClick={() => setOpenAddConsualtationModel(false)}
         >
-          Decline
+          الغاء
         </Button>
       </ModalFooter>
     </div>

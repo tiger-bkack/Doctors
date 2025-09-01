@@ -338,19 +338,25 @@ const editReport = async (req, res) => {
       nextVisit,
     } = req.body;
 
-    const reportInfo = await reportModel.findByIdAndUpdate(reportId, {
-      complaint,
-      examination,
-      diagnosis,
-      treatment,
-      notes,
-      nextVisit,
-    });
+    const report = await reportModel.findById(reportId);
 
-    res.json({
-      success: true,
-      message: ` تم تحديث التقرير بنجاح لي     ${reportInfo.userData.name}`,
-    });
+    if (report) {
+      await reportModel.findByIdAndUpdate(reportId, {
+        complaint,
+        examination,
+        diagnosis,
+        treatment,
+        notes,
+        nextVisit,
+      });
+
+      res.json({
+        success: true,
+        message: ` تم تحديث التقرير بنجاح لي     ${report.userData.name}`,
+      });
+    } else {
+      res.json({ success: false, message: "هذا التقرير غير موجود" });
+    }
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
@@ -386,6 +392,24 @@ const getUserReportWithDoctor = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+const deletedReport = async (req, res) => {
+  try {
+    const { reportId } = req.body;
+
+    const report = await reportModel.findById(reportId);
+
+    if (report) {
+      await reportModel.findByIdAndDelete(reportId);
+      res.json({ success: true, message: "تم حذف التقرير بنجاح" });
+    } else {
+      res.json({ success: false, message: "هذا التقرير غير متاح" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
   }
 };
 
@@ -606,4 +630,5 @@ export {
   cancelConsultation,
   doctorConsultation,
   deleteSlotsBooked,
+  deletedReport,
 };

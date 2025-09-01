@@ -18,7 +18,7 @@ const DoctorProfile = () => {
   } = useContext(DoctorContext);
   const { currency } = useContext(AppContext);
 
-  const [isEdit, setIsEdit] = useState(false);
+  const [isEdit, setIsEdit] = useState(true);
 
   const convarTo24Hour = (hour) => {
     let h = parseInt(hour);
@@ -128,7 +128,7 @@ const DoctorProfile = () => {
                     onChange={(e) =>
                       setDocInfo((prev) => ({
                         ...prev,
-                        consultation_fees: e.target.value,
+                        complaint: e.target.value,
                       }))
                     }
                     value={docInfo.consultation_fees}

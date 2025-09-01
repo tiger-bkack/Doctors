@@ -32,7 +32,7 @@ const ReportBar = () => {
             to={"/add-report"}
           >
             <img src={assets.appointment_icon} alt="" />
-            <p className="hidden md:block">الحجوزات</p>
+            <p className="hidden md:block">0000000000000000000000000الحجوزات</p>
           </NavLink>
           <NavLink
             className={({ isActive }) =>

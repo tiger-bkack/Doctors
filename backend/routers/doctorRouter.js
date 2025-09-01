@@ -19,6 +19,7 @@ import {
   cancelConsultation,
   doctorConsultation,
   deleteSlotsBooked,
+  deletedReport,
 } from "../controllers/doctorController.js";
 import authDoctor from "../middlewares/authDoctor.js";
 
@@ -49,6 +50,8 @@ doctorRouter.post("/update-report", authDoctor, editReport);
 doctorRouter.post("/reposts", authDoctor, allReport);
 
 doctorRouter.post("/user-report", authDoctor, getUserReportWithDoctor);
+
+doctorRouter.post("/delete-report", authDoctor, deletedReport);
 
 doctorRouter.post("/search", authDoctor, searchUser);
 

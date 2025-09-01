@@ -3,9 +3,9 @@ import { DoctorContext } from "../../context/DoctorContext";
 import { AppContext } from "../../context/AppContext";
 import { assets } from "../../assets/assets";
 import { Button, Modal, Spinner, Dropdown, DropdownItem } from "flowbite-react";
-import AddReport from "../../components/AddReport";
-import ViewModel from "../../components/ViewModel";
-import AddConsaltation from "../../components/AddConsaltation";
+import AddReport from "../../components/Reports/AddReport";
+import ViewModel from "../../components/Reports/ViewModel";
+import AddConsaltation from "../../components/consultations/AddConsaltation";
 
 function DoctorAppointments() {
   const [openModal, setOpenModal] = useState(false);
@@ -179,7 +179,7 @@ function DoctorAppointments() {
       </Modal>
 
       <Modal
-        size="7xl"
+        size="6xl"
         show={openViewReportModel}
         onClose={() => setOpenViewReportModel(false)}
       >

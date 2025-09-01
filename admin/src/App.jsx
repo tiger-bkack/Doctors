@@ -19,7 +19,7 @@ import LoaderStartApp from "./components/LoaderStartApp";
 import NotFound from "./pages/NotFound";
 
 import Reports from "./pages/Doctor/Reports";
-import AllReports from "./pages/Doctor/AllReports";
+import AllReports from "./components/Reports/AllReports";
 import DoctorConsultation from "./pages/Doctor/DoctorConsultation";
 
 const App = () => {

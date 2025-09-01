@@ -266,6 +266,25 @@ const DoctorContextProvider = (props) => {
     }
   };
 
+  const deletedReport = async (reportId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/doctor/delete-report",
+        { reportId },
+        { headers: { dtoken } }
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
   const value = {
     dtoken,
     setDtoken,
@@ -284,6 +303,7 @@ const DoctorContextProvider = (props) => {
     setDocInfo,
     getAllReport,
     reportData,
+    setReportData,
     userReportWithDoctor,
     getUserReportWithDoctor,
     getUserInfo,
@@ -294,6 +314,7 @@ const DoctorContextProvider = (props) => {
     consultation,
     consultationMesssage,
     deletedSlotsBooked,
+    deletedReport,
   };
 
   return (
