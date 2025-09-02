@@ -1,21 +1,37 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { DoctorContext } from "../../context/DoctorContext";
+import { AdminContext } from "@/context/AdminContext";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { assets } from "../../assets/assets";
-import { AppContext } from "../../context/AppContext";
 import { Button, Modal } from "flowbite-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
 import { FaPrint, FaRegEdit, FaSave, FaShare } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-import EditReport from "@/components/Reports/EditReport";
+import { AppContext } from "@/context/AppContext";
+import EditReport from "@/components/Reports/Admin/EditReport";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { useParams } from "react-router-dom";
 
-const AllReports = () => {
-  const { getAllReport, dtoken, reportData, deletedReport, docInfo } =
-    useContext(DoctorContext);
+const AdminReports = () => {
+  const {
+    getAllUserReportToAdmin,
+    atoken,
+    deleteReportToAdmin,
+    reportData,
+    backendUrl,
+    getUserReportWithDoctorFromAdmin,
+  } = useContext(AdminContext);
+
+  const { reportId } = useParams();
+
   const { calculateAge, slotDateFormat } = useContext(AppContext);
   const [selectReport, setSelectReport] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const reportRefs = useRef([]);
 
@@ -44,74 +60,116 @@ const AllReports = () => {
   };
 
   useEffect(() => {
-    if (dtoken) {
-      getAllReport();
-    }
-  }, [dtoken]);
+    if (atoken) getAllUserReportToAdmin();
+    if (!query) return setResults([]);
+
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const { data } = await axios.post(
+          `${backendUrl}/api/admin/search`,
+          { q: query },
+          { headers: { atoken } }
+        );
+        setResults(data.success ? data.users || [] : []);
+      } catch (err) {
+        console.error(err);
+        toast.error(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [atoken, query, backendUrl]);
 
   return (
     reportData && (
-      <div dir="ltr" className="w-full max-w-6xl m-5">
-        <div className="w-full flex justify-center">
-          <p className="mb-3 font-semibold uppercase text-2xl">{`كل التقارير الخاص بالطبيب ${
-            docInfo ? docInfo.name : ""
-          }`}</p>
-        </div>
+      <div dir="ltr" className="w-full max-w-6xl m-5 bg-white rounded-2xl">
+        {/* Search */}
+        <form
+          onSubmit={(e) => e.preventDefault()}
+          className="flex flex-col items-center max-w-md mx-auto relative my-10 "
+        >
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="ابحث عن المريض بالاسم، الرقم القومي أو الهاتف"
+            className="border border-gray-300 px-4 py-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          {loading && (
+            <p className="mt-2 text-gray-500 text-sm">جاري البحث...</p>
+          )}
+          {results.length > 0 && (
+            <ul className="absolute  top-12 w-full bg-white border rounded-md max-h-52 overflow-y-auto shadow-lg z-50">
+              {results.map((user) => (
+                <li
+                  key={user._id}
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  onClick={() => getUserReportWithDoctorFromAdmin(user._id)}
+                >
+                  {user.name} - {user.nationalId || user.phone}
+                </li>
+              ))}
+            </ul>
+          )}
+        </form>
 
-        <div className="max-h-[95vh] min-h-[90vh] overflow-y-scroll">
+        <div className="max-h-[85vh] min-h-[70vh] overflow-y-scroll ">
           {(Array.isArray(reportData) ? reportData : [reportData]).map(
             (items, index) => (
               <div
                 key={items._id || index}
-                className="flex flex-col justify-center items-center"
+                className="flex flex-col justify-center items-center "
               >
                 {/* أزرار التحكم */}
                 <div
                   dir="rtl"
-                  className="mt-10 w-auto bg-white m-auto    my-0 flex items-center justify-baseline"
+                  className="mt-10 w-auto bg-white mx-auto  my-0 flex items-center justify-baseline"
                 >
                   <button
-                    className="py-1 px-10  flex items-center justify-center group gap-2 group cursor-pointer border-l-1 border-gray-500"
+                    className="py-1 px-10  flex items-center justify-center gap-2 group cursor-pointer border-l-1 border-gray-500"
                     onClick={() => handlePrint(reportRefs.current[index])}
                   >
-                    <p className="text-gray-500 group-hover:text-[#5f6fff] transition-all duration-150">
+                    <p className="text-gray-500 group-hover:text-gray-900 transition-all duration-150">
                       طباعه
                     </p>
-                    <FaPrint className="text-[20px] text-gray-500 group-hover:text-[#5f6fff] transition-all duration-150" />
+                    <FaPrint className="text-[20px] text-gray-500 group-hover:text-gray-900 transition-all duration-150" />
                   </button>
 
                   <button
                     onClick={() => handleUpdateReport(items)}
-                    className="py-1 px-10  flex items-center justify-center group gap-2 group cursor-pointer border-l-1 border-gray-500"
+                    className="py-1 px-10  flex items-center justify-center gap-2 group cursor-pointer border-l-1 border-gray-500"
                   >
-                    <p className="text-gray-500 group-hover:text-[#5f6fff] transition-all duration-150">
+                    <p className="text-gray-500 group-hover:text-gray-900 transition-all duration-150">
                       تعديل
                     </p>
-                    <FaRegEdit className="text-[20px] text-gray-500 group-hover:text-[#5f6fff] transition-all duration-150" />
+                    <FaRegEdit className="text-[20px] text-gray-500 group-hover:text-gray-900 transition-all duration-150" />
                   </button>
 
                   <button
-                    onClick={() => deletedReport(items._id)}
-                    className="py-1 px-10  flex items-center justify-center group gap-2 group cursor-pointer border-l-1 border-gray-500"
+                    onClick={() => deleteReportToAdmin(items._id)}
+                    className="py-1 px-10  flex items-center justify-center gap-2 group cursor-pointer border-l-1 border-gray-500"
                   >
-                    <p className="text-gray-500 group-hover:text-[#5f6fff] transition-all duration-150">
+                    <p className="text-gray-500 group-hover:text-gray-900 transition-all duration-150">
                       حذف
                     </p>
-                    <MdDelete className="text-[20px] text-gray-500 group-hover:text-[#5f6fff] transition-all duration-150" />
+                    <MdDelete className="text-[20px] text-gray-500 group-hover:text-gray-900 transition-all duration-150" />
                   </button>
 
-                  <button className="py-1 px-10  flex items-center justify-center group gap-2 group cursor-pointer">
-                    <p className="text-gray-500 group-hover:text-[#5f6fff] transition-all duration-150">
+                  <button className="py-1 px-10  flex items-center justify-center gap-2 group cursor-pointer">
+                    <p className="text-gray-500 group-hover:text-gray-900 transition-all duration-150">
                       مشاركة
                     </p>
-                    <FaShare className="text-[20px] text-gray-500 group-hover:text-[#5f6fff] transition-all duration-150" />
+                    <FaShare className="text-[20px] text-gray-500 group-hover:text-gray-900 transition-all duration-150" />
                   </button>
                 </div>
 
                 {/* التقرير نفسه */}
                 <div
                   ref={(el) => (reportRefs.current[index] = el)}
-                  className="p-15 mt-1  bg-white mx-auto my-8"
+                  className="p-15 mt-1 bg-white mx-auto my-8"
                   style={{
                     width: "210mm", // A4 width
                     minHeight: "297mm", // A4 height
@@ -256,4 +314,4 @@ const AllReports = () => {
   );
 };
 
-export default AllReports;
+export default AdminReports;

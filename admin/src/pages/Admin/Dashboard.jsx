@@ -26,7 +26,7 @@ const Dashboard = () => {
   }, [atoken]);
   return (
     dashData && (
-      <div className="m-5">
+      <div className={`m-5 `}>
         <div className=" flex flex-wrap gap-5">
           <div
             onClick={() => navgate("/doctor-list")}
@@ -89,88 +89,89 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-
-        <div className="bg-white">
-          <div className="flex items-center gap-2.5 px-4 py-4 mt-10 rounded-t border border-gray-100 ">
-            <img src={assets.list_icon} alt="" />
-            <p className="font-semibold">أخر الحجوزات</p>
-          </div>
-          <div className="pt-4 border border-t-0  border-gray-100">
-            {dashData.lastAppointment.map((item, index) => (
-              <div
-                key={index}
-                className="flex items-center px-6 py-3 hover:bg-gray-100 transition-all duration-200"
-              >
-                <img
-                  className="w-15 h-15 rounded-full"
-                  src={item.docData.image}
-                  alt=""
-                />
-                <div className="flex-1 text-sm">
-                  <p className="text-gray-800 font-medium">
-                    {item.docData.name}
-                  </p>
-                  <p className="text-gray-600">
-                    {slotDateFormat(item.slotDate)}
-                  </p>
-                </div>
-
-                {item.cancelled ? (
-                  <p className="text-[#ff8c6f] text-xs font-medium">
-                    Cancelled
-                  </p>
-                ) : (
+        <div className=" min-h-[50vh] max-h-[70vh] overflow-y-scroll">
+          <div className="bg-white rounded-2xl">
+            <div className="flex items-center gap-2.5 px-4 py-4 mt-10 rounded-t border border-gray-100 ">
+              <img src={assets.list_icon} alt="" />
+              <p className="font-semibold">أخر الحجوزات</p>
+            </div>
+            <div className="pt-4 border border-t-0  border-gray-100">
+              {dashData.lastAppointment.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex items-center px-6 py-3 hover:bg-gray-100 transition-all duration-200"
+                >
                   <img
-                    onClick={() => cancelAppointment(item._id)}
-                    className="w-9 cursor-pointer"
-                    src={assets.cancel_icon}
+                    className="w-15 h-15 rounded-full"
+                    src={item.docData.image}
                     alt=""
                   />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+                  <div className="flex-1 text-sm">
+                    <p className="text-gray-800 font-medium">
+                      {item.docData.name}
+                    </p>
+                    <p className="text-gray-600">
+                      {slotDateFormat(item.slotDate)}
+                    </p>
+                  </div>
 
-        <div className="bg-white">
-          <div className="flex items-center gap-2.5 px-4 py-4 mt-10 rounded-t border border-gray-100 ">
-            <img src={assets.list_icon} alt="" />
-            <p className="font-semibold">أخر أستشارت</p>
-          </div>
-          <div className="pt-4 border border-t-0  border-gray-100">
-            {dashData.lastConsultation.map((item, index) => (
-              <div
-                key={index}
-                className="flex items-center px-6 py-3 hover:bg-gray-100 transition-all duration-200"
-              >
-                <img
-                  className="w-15 h-15 rounded-full"
-                  src={item.docData.image}
-                  alt=""
-                />
-                <div className="flex-1 text-sm">
-                  <p className="text-gray-800 font-medium">
-                    {item.docData.name}
-                  </p>
-                  <p className="text-gray-600">
-                    {slotDateFormat(item.consultDay)}
-                  </p>
+                  {item.cancelled ? (
+                    <p className="text-[#ff8c6f] text-xs font-medium">
+                      Cancelled
+                    </p>
+                  ) : (
+                    <img
+                      onClick={() => cancelAppointment(item._id)}
+                      className="w-9 cursor-pointer"
+                      src={assets.cancel_icon}
+                      alt=""
+                    />
+                  )}
                 </div>
+              ))}
+            </div>
+          </div>
 
-                {item.cancelled ? (
-                  <p className="text-[#ff8c6f] text-xs font-medium">
-                    Cancelled
-                  </p>
-                ) : (
+          <div className="bg-white rounded-2xl">
+            <div className="flex items-center gap-2.5 px-4 py-4 mt-10 rounded-t border border-gray-100 ">
+              <img src={assets.list_icon} alt="" />
+              <p className="font-semibold">أخر أستشارت</p>
+            </div>
+            <div className="pt-4 border border-t-0  border-gray-100">
+              {dashData.lastConsultation.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex items-center px-6 py-3 hover:bg-gray-100 transition-all ease-out duration-200 cursor-pointer"
+                >
                   <img
-                    onClick={() => cancelledConsultation(item._id)}
-                    className="w-9 cursor-pointer"
-                    src={assets.cancel_icon}
+                    className="w-15 h-15 rounded-full"
+                    src={item.docData.image}
                     alt=""
                   />
-                )}
-              </div>
-            ))}
+                  <div className="flex-1 text-sm">
+                    <p className="text-gray-800 font-medium">
+                      {item.docData.name}
+                    </p>
+                    <p className="text-gray-600">
+                      {slotDateFormat(item.consultDay)}
+                    </p>
+                  </div>
+
+                  {item.cancelled ? (
+                    <p className="text-[#ff8c6f] text-xs font-medium">
+                      Cancelled
+                    </p>
+                  ) : (
+                    <img
+                      onClick={() => cancelledConsultation(item._id)}
+                      className="w-9 cursor-pointer"
+                      src={assets.cancel_icon}
+                      alt=""
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

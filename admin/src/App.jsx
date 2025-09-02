@@ -21,6 +21,11 @@ import NotFound from "./pages/NotFound";
 import Reports from "./pages/Doctor/Reports";
 import AllReports from "./components/Reports/AllReports";
 import DoctorConsultation from "./pages/Doctor/DoctorConsultation";
+import AdminReports from "./pages/Admin/AdminReports";
+import UserReport from "./components/Reports/Admin/UserReport";
+import UserAppointment from "./components/appointments/Admin/UserAppointment";
+import UserConsultation from "./components/consultations/userConsultation";
+import Consutation from "./pages/Admin/Consutation";
 
 const App = () => {
   const { atoken } = useContext(AdminContext);
@@ -87,6 +92,18 @@ const App = () => {
             <Route path="/all-appointment" element={<Appointments />} />
             <Route path="/add-doctor" element={<AddDoctor />} />
             <Route path="/doctor-list" element={<DoctorsList />} />
+            <Route path="/reports" element={<AdminReports />} />
+            <Route path="/all-consultation" element={<Consutation />} />
+            <Route path="/user-report/:userId" element={<UserReport />} />
+            <Route
+              path="/user-consultation/:userId"
+              element={<UserConsultation />}
+            />
+            <Route
+              path="/user-appointment/:userId"
+              element={<UserAppointment />}
+            />
+
             {/* <Route path="/add-report/:appointmentId" element={<Reports />} /> */}
 
             <Route path="*" element={<NotFound />} />

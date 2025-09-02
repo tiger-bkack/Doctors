@@ -98,125 +98,128 @@ const DoctorDashbord = () => {
             </div>
           </div>
         </div>
-
-        <div className="bg-white">
-          <div className="flex items-center gap-2.5 px-4 py-4 mt-10 rounded-t border border-gray-100 ">
-            <img src={assets.list_icon} alt="" />
-            <p className="font-semibold">
-              {" "}
-              {`أخر الحجوزات بي  ${docInfo.name}`}
-            </p>
-          </div>
-          <div className="pt-4 border border-t-0  border-gray-100">
-            {dashData.latestAppointments.map((items, index) => (
-              <div
-                key={index}
-                className="flex items-center px-6 py-3 gap-4 hover:bg-gray-100 transition-all duration-200"
-              >
-                <img
-                  className="w-10 h-10 rounded-full"
-                  src={items.userData.image}
-                  alt=""
-                />
-                <div className="flex-1 text-sm">
-                  <p className="text-gray-800 font-medium">
-                    {items.userData.name}
-                  </p>
-                  <p className="text-gray-600">
-                    {slotDateFormat(items.slotDate)}
-                  </p>
-                </div>
-
-                {items.cancelled ? (
-                  <p className="text-red-400 font-medium text-sm">
-                    تم ألغاء الكشف
-                  </p>
-                ) : items.isCompleted ? (
-                  <p className="text-green-500 text-sm font-medium">تم الكشف</p>
-                ) : (
-                  <div className=" flex gap-0.5">
-                    {loader ? "جاري التنفيز" : ""}
-                    <img
-                      onClick={() => cancelAppointment(items._id)}
-                      className="w-10 cursor-pointer"
-                      src={assets.cancel_icon}
-                      alt=""
-                    />
-                    <img
-                      onClick={() => completeAppointment(items._id)}
-                      className="w-10 cursor-pointer"
-                      src={assets.tick_icon}
-                      alt=""
-                    />
+        <div className="mt-2 min-h-[50vh] max-h-[70vh] overflow-y-scroll">
+          <div className="bg-white">
+            <div className="flex items-center gap-2.5 px-4 py-4 mt-10 rounded-t border border-gray-100 ">
+              <img src={assets.list_icon} alt="" />
+              <p className="font-semibold">
+                {" "}
+                {`أخر الحجوزات بي  ${docInfo.name}`}
+              </p>
+            </div>
+            <div className="pt-4 border border-t-0  border-gray-100">
+              {dashData.latestAppointments.map((items, index) => (
+                <div
+                  key={index}
+                  className="flex items-center px-6 py-3 gap-4 hover:bg-gray-100 transition-all duration-200"
+                >
+                  <img
+                    className="w-10 h-10 rounded-full"
+                    src={items.userData.image}
+                    alt=""
+                  />
+                  <div className="flex-1 text-sm">
+                    <p className="text-gray-800 font-medium">
+                      {items.userData.name}
+                    </p>
+                    <p className="text-gray-600">
+                      {slotDateFormat(items.slotDate)}
+                    </p>
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
 
-        <div className="bg-white">
-          <div className="flex items-center gap-2.5 px-4 py-4 mt-10 rounded-t border border-gray-100 ">
-            <img src={assets.list_icon} alt="" />
-            <p className="font-semibold">
-              {" "}
-              {`أخر الأستشارات بي ${docInfo.name}`}
-            </p>
-          </div>
-          <div className="pt-4 border border-t-0  border-gray-100">
-            {dashData.latestConsultation.map((items, index) => (
-              <div
-                key={index}
-                className="flex items-center px-6 py-3 gap-4 hover:bg-gray-100 transition-all duration-200"
-              >
-                <img
-                  className="w-10 h-10 rounded-full"
-                  src={items.userData.image}
-                  alt=""
-                />
-                <div className="flex-1 text-sm">
-                  <p className="text-gray-800 font-medium">
-                    {items.userData.name}
-                  </p>
-                  <p className="text-gray-600 ">
-                    {formatDate(items.consultDay)} -{" "}
-                    {items.consultTime
-                      ? items.consultTime
-                      : "لم يقم المريض بتحديد الوقت بعد"}
-                  </p>
+                  {items.cancelled ? (
+                    <p className="text-red-400 font-medium text-sm">
+                      تم ألغاء الكشف
+                    </p>
+                  ) : items.isCompleted ? (
+                    <p className="text-green-500 text-sm font-medium">
+                      تم الكشف
+                    </p>
+                  ) : (
+                    <div className=" flex gap-0.5">
+                      {loader ? "جاري التنفيز" : ""}
+                      <img
+                        onClick={() => cancelAppointment(items._id)}
+                        className="w-10 cursor-pointer"
+                        src={assets.cancel_icon}
+                        alt=""
+                      />
+                      <img
+                        onClick={() => completeAppointment(items._id)}
+                        className="w-10 cursor-pointer"
+                        src={assets.tick_icon}
+                        alt=""
+                      />
+                    </div>
+                  )}
                 </div>
+              ))}
+            </div>
+          </div>
 
-                {items.cancelled ? (
-                  <p className="text-red-400 font-medium text-sm">
-                    تم ألغاء الأستشاراة
-                  </p>
-                ) : items.isCompleted ? (
-                  <p className="text-green-500 text-sm font-medium">
-                    تمت الأستشاراة
-                  </p>
-                ) : (
-                  <div className=" flex gap-0.5">
-                    {loader ? "جاري التنفيز" : ""}
-                    <img
-                      onClick={() =>
-                        cancelConsultation(items._id, items.userId)
-                      }
-                      className="w-10 cursor-pointer"
-                      src={assets.cancel_icon}
-                      alt=""
-                    />
-                    <img
-                      onClick={() =>
-                        completeConsultation(items._id, items.userId)
-                      }
-                      className="w-10 cursor-pointer"
-                      src={assets.tick_icon}
-                      alt=""
-                    />
+          <div className="bg-white">
+            <div className="flex items-center gap-2.5 px-4 py-4 mt-10 rounded-t border border-gray-100 ">
+              <img src={assets.list_icon} alt="" />
+              <p className="font-semibold">
+                {" "}
+                {`أخر الأستشارات بي ${docInfo.name}`}
+              </p>
+            </div>
+            <div className="pt-4 border border-t-0  border-gray-100">
+              {dashData.latestConsultation.map((items, index) => (
+                <div
+                  key={index}
+                  className="flex items-center px-6 py-3 gap-4 hover:bg-gray-100 transition-all duration-200"
+                >
+                  <img
+                    className="w-10 h-10 rounded-full"
+                    src={items.userData.image}
+                    alt=""
+                  />
+                  <div className="flex-1 text-sm">
+                    <p className="text-gray-800 font-medium">
+                      {items.userData.name}
+                    </p>
+                    <p className="text-gray-600 ">
+                      {formatDate(items.consultDay)} -{" "}
+                      {items.consultTime
+                        ? items.consultTime
+                        : "لم يقم المريض بتحديد الوقت بعد"}
+                    </p>
                   </div>
-                )}
-              </div>
-            ))}
+
+                  {items.cancelled ? (
+                    <p className="text-red-400 font-medium text-sm">
+                      تم ألغاء الأستشاراة
+                    </p>
+                  ) : items.isCompleted ? (
+                    <p className="text-green-500 text-sm font-medium">
+                      تمت الأستشاراة
+                    </p>
+                  ) : (
+                    <div className=" flex gap-0.5">
+                      {loader ? "جاري التنفيز" : ""}
+                      <img
+                        onClick={() =>
+                          cancelConsultation(items._id, items.userId)
+                        }
+                        className="w-10 cursor-pointer"
+                        src={assets.cancel_icon}
+                        alt=""
+                      />
+                      <img
+                        onClick={() =>
+                          completeConsultation(items._id, items.userId)
+                        }
+                        className="w-10 cursor-pointer"
+                        src={assets.tick_icon}
+                        alt=""
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

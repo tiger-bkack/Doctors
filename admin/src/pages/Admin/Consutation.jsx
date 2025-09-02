@@ -1,55 +1,58 @@
 import { assets } from "@/assets/assets";
+import { AdminContext } from "@/context/AdminContext";
 import { AppContext } from "@/context/AppContext";
-import { DoctorContext } from "@/context/DoctorContext";
 import React, { useContext, useEffect, useState } from "react";
-import { Spinner } from "flowbite-react";
+import { Dropdown, DropdownItem } from "flowbite-react";
+import { NavLink } from "react-router-dom";
 
-const DoctorConsultation = () => {
+const Consutation = () => {
   const {
-    getConsultation,
-    dtoken,
+    getAllConsultation,
+    atoken,
     consultation,
-
-    docInfo,
-    getAppointments,
-    getDoctorDashbord,
-    getDoctorProfile,
-    completeConsultation,
-    cancelConsultation,
-  } = useContext(DoctorContext);
+    getAllUserReportToAdmin,
+    getUserReportWithDoctorFromAdmin,
+    getUserAppointmenttWithDoctorFromAdmin,
+    getAppointment,
+    getDashData,
+    cancelledConsultation,
+    completedConsultation,
+    allConsultation,
+  } = useContext(AdminContext);
+  console.log("consultation :", consultation);
 
   const { calculateAge, formatDate } = useContext(AppContext);
   const [loadingActions, setLoadingActions] = useState({});
 
-  const handleCompleteConsultation = async (id, userId) => {
+  const handleCompleteConsultation = async (id, userId, docId) => {
     setLoadingActions((prev) => ({ ...prev, [id]: true }));
-    await completeConsultation(id, userId);
+    await completedConsultation(id, userId, docId);
     setLoadingActions((prev) => ({ ...prev, [id]: false }));
   };
 
-  const handleCancelConsultation = async (id, userId) => {
+  const handleCancelConsultation = async (id, userId, docId) => {
     setLoadingActions((prev) => ({ ...prev, [id]: true }));
-    await cancelConsultation(id, userId);
+    await cancelledConsultation(id, userId, docId);
     setLoadingActions((prev) => ({ ...prev, [id]: false }));
   };
-
   useEffect(() => {
-    if (dtoken) {
-      getConsultation();
-      getAppointments();
-      getDoctorDashbord();
-      getDoctorProfile();
+    if (atoken) {
+      getAllConsultation();
+      getAllUserReportToAdmin();
+      getUserReportWithDoctorFromAdmin();
+      getUserAppointmenttWithDoctorFromAdmin();
+      getAppointment();
+      getDashData();
     }
-  }, [dtoken]);
-
+  }, [atoken]);
   return (
-    consultation && (
+    allConsultation && (
       <div className="w-full max-w-6xl m-5">
-        <p className="mb-3 font-medium text-lg">{`كل الأستشارات الخاصه بي ${docInfo.name}`}</p>
+        <p className="mb-3 font-medium text-lg">{`كل الأستشارات `}</p>
 
-        <div className="bg-white border border-gray-200  max-h-[80vh] min-h-[60vh] overflow-y-scroll rounded-2xl">
+        <div className="bg-white border border-gray-200 rounded-2xl max-h-[80vh] min-h-[60vh] overflow-y-scroll">
           {/*------Table Headers------ */}
-          <div className="max-sm:hidden py-3 px-6 grid grid-cols-[0.5fr_2fr_1fr_0.5fr_1fr_1fr_1fr_1fr] gap-1 border-b border-gray-200 text-gray-500 hover:bg-gray-50 transition-all duration-150">
+          <div className="max-sm:hidden py-3 px-6 grid grid-cols-[0.5fr_2fr_1fr_0.5fr_1fr_1fr_1fr_1fr_0.5fr] gap-1 border-b border-gray-200 text-gray-500 hover:bg-gray-50 transition-all duration-150">
             <p>#</p>
             <p>إسم المريض</p>
             <p>حالة الدفع</p>
@@ -62,10 +65,10 @@ const DoctorConsultation = () => {
             </div>
           </div>
 
-          {consultation.map((items, index) => (
+          {allConsultation.map((items, index) => (
             <div
               key={items._id}
-              className="flex flex-wrap justify-between  sm:grid  text-base py-3 px-6 grid-cols-[0.5fr_2fr_1fr_0.5fr_1fr_1fr_1fr_1fr] gap-1  items-center border-b border-gray-200 text-gray-500 hover:bg-gray-50 transition-all duration-150"
+              className="flex flex-wrap justify-between  sm:grid  text-base py-3 px-6 grid-cols-[0.5fr_2fr_1fr_0.5fr_1fr_1fr_1fr_1fr_0.5fr] gap-1  items-center border-b border-gray-200 text-gray-500 hover:bg-gray-50 transition-all duration-150"
             >
               <p className="hidden md:block">{index + 1}</p>
               <div className="flex items-center gap-3">
@@ -119,7 +122,11 @@ const DoctorConsultation = () => {
                       <div className="w-full flex items-center justify-center gap-2">
                         <img
                           onClick={() =>
-                            handleCancelConsultation(items._id, items.userId)
+                            handleCancelConsultation(
+                              items._id,
+                              items.userId,
+                              items.docId
+                            )
                           }
                           className="w-10 cursor-pointer"
                           src={assets.cancel_icon}
@@ -127,7 +134,11 @@ const DoctorConsultation = () => {
                         />
                         <img
                           onClick={() =>
-                            handleCompleteConsultation(items._id, items.userId)
+                            handleCompleteConsultation(
+                              items._id,
+                              items.userId,
+                              items.docId
+                            )
                           }
                           className="w-10 cursor-pointer"
                           src={assets.tick_icon}
@@ -138,6 +149,28 @@ const DoctorConsultation = () => {
                   </div>
                 )}
               </div>
+              <div className="">
+                <Dropdown
+                  inline
+                  className="px-3 py-3 !bg-gray-200 rounded-2xl drop-shadow-2xl "
+                >
+                  <DropdownItem className="hover:bg-white hover:rounded-2xl transition-all ease-in duration-100">
+                    <NavLink to={`/user-report/${items.userData._id}`}>
+                      عرض التقارير
+                    </NavLink>
+                  </DropdownItem>
+                  <DropdownItem className="hover:bg-white hover:rounded-2xl transition-all ease-in duration-100">
+                    <NavLink to={`/user-appointment/${items.userData._id}`}>
+                      عرض الحجزات
+                    </NavLink>
+                  </DropdownItem>
+                  <DropdownItem className="hover:bg-white hover:rounded-2xl transition-all ease-in duration-100">
+                    <NavLink to={`/user-consultation/${items.userData._id}`}>
+                      عرض أستشارة
+                    </NavLink>
+                  </DropdownItem>
+                </Dropdown>
+              </div>
             </div>
           ))}
         </div>
@@ -146,4 +179,4 @@ const DoctorConsultation = () => {
   );
 };
 
-export default DoctorConsultation;
+export default Consutation;

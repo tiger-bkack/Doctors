@@ -19,7 +19,7 @@ const Navbar = () => {
     dtoken && localStorage.removeItem("dtoken");
   };
   return (
-    <div className="flex justify-between items-center px-4 sm:px-10 py-3 border-b bg-white">
+    <div className="flex justify-between items-center px-4 sm:px-10 py-3 border-b border-gray-100 bg-white">
       <div className="flex items-center gap-0.5 text-xs">
         <img className="w-8 pl-1 " src={assets.logo} alt="" />
         <div className="w-19 sm:w-23 cursor-pointer flex flex-col ">
@@ -33,7 +33,7 @@ const Navbar = () => {
 
       <button
         onClick={() => logout()}
-        className="bg-[#5f6fff] border-none text-white rounded-full px-10 py-2 text-sm cursor-pointer hover:bg-[#5f6fffc4] transition-all duration-100"
+        className="bg-[#5f6fff] border-none text-white rounded-full px-10 py-2 text-sm cursor-pointer hover:bg-linear-to-bl from-violet-500 to-fuchsia-500 transition-all duration-200"
       >
         تسجل الخروج
       </button>

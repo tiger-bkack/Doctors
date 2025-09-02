@@ -28,7 +28,7 @@ const Login = () => {
         if (data.success) {
           localStorage.setItem("atoken", data.token);
           setAtoken(data.token);
-          navigate("/dmin-dashbord");
+          navigate("/");
         } else {
           toast.error(data.message);
         }
@@ -55,13 +55,13 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-[100vh] bg-white">
+    <div className="min-h-[100vh] bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% ">
       <form
         dir="rtl"
         onSubmit={onSubmitHandler}
         className="min-h-[80vh] flex items-center "
       >
-        <div className="flex flex-col gap-3 m-auto items-start p-8 min-w-[340px] sm:min-w-96 border rounded-xl text-[#5e5e5e] text-sm shadow-lg">
+        <div className="flex flex-col gap-3 m-auto items-start p-8 min-w-[340px] sm:min-w-96 border border-gray-50 rounded-xl text-[#5e5e5e] text-sm drop-shadow-2xl bg-white">
           <p className="text-2xl font-semibold m-auto">
             تسجيل دخول <span className="text-[#5f6fff]">{state}</span>
           </p>

@@ -1,53 +1,39 @@
 import { assets } from "@/assets/assets";
+import { AdminContext } from "@/context/AdminContext";
 import { AppContext } from "@/context/AppContext";
-import { DoctorContext } from "@/context/DoctorContext";
 import React, { useContext, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { Spinner } from "flowbite-react";
 
-const DoctorConsultation = () => {
-  const {
-    getConsultation,
-    dtoken,
-    consultation,
-
-    docInfo,
-    getAppointments,
-    getDoctorDashbord,
-    getDoctorProfile,
-    completeConsultation,
-    cancelConsultation,
-  } = useContext(DoctorContext);
-
+const UserConsultation = () => {
+  const { getUserConsultation, atoken, consultation, cancelledConsultation } =
+    useContext(AdminContext);
+  const { userId } = useParams();
   const { calculateAge, formatDate } = useContext(AppContext);
+
   const [loadingActions, setLoadingActions] = useState({});
 
-  const handleCompleteConsultation = async (id, userId) => {
+  const handleCompleteConsultation = async (id, userId, docId) => {
     setLoadingActions((prev) => ({ ...prev, [id]: true }));
-    await completeConsultation(id, userId);
+    await cancelledConsultation(id, userId, docId);
     setLoadingActions((prev) => ({ ...prev, [id]: false }));
   };
 
-  const handleCancelConsultation = async (id, userId) => {
+  const handleCancelConsultation = async (id, userId, docId) => {
     setLoadingActions((prev) => ({ ...prev, [id]: true }));
-    await cancelConsultation(id, userId);
+    await cancelledConsultation(id, userId, docId);
+    console.log(id, userId, docId);
     setLoadingActions((prev) => ({ ...prev, [id]: false }));
   };
-
   useEffect(() => {
-    if (dtoken) {
-      getConsultation();
-      getAppointments();
-      getDoctorDashbord();
-      getDoctorProfile();
-    }
-  }, [dtoken]);
-
+    if (atoken) getUserConsultation(userId);
+  }, [atoken]);
   return (
     consultation && (
       <div className="w-full max-w-6xl m-5">
-        <p className="mb-3 font-medium text-lg">{`كل الأستشارات الخاصه بي ${docInfo.name}`}</p>
+        <p className="mb-3 font-medium text-lg">{`كل الأستشارات الخاصه بي المريض`}</p>
 
-        <div className="bg-white border border-gray-200  max-h-[80vh] min-h-[60vh] overflow-y-scroll rounded-2xl">
+        <div className="bg-white border border-gray-200 rounded max-h-[80vh] min-h-[60vh] overflow-y-scroll">
           {/*------Table Headers------ */}
           <div className="max-sm:hidden py-3 px-6 grid grid-cols-[0.5fr_2fr_1fr_0.5fr_1fr_1fr_1fr_1fr] gap-1 border-b border-gray-200 text-gray-500 hover:bg-gray-50 transition-all duration-150">
             <p>#</p>
@@ -119,7 +105,11 @@ const DoctorConsultation = () => {
                       <div className="w-full flex items-center justify-center gap-2">
                         <img
                           onClick={() =>
-                            handleCancelConsultation(items._id, items.userId)
+                            handleCancelConsultation(
+                              items._id,
+                              items.userId,
+                              items.docId
+                            )
                           }
                           className="w-10 cursor-pointer"
                           src={assets.cancel_icon}
@@ -127,7 +117,11 @@ const DoctorConsultation = () => {
                         />
                         <img
                           onClick={() =>
-                            handleCompleteConsultation(items._id, items.userId)
+                            handleCompleteConsultation(
+                              items._id,
+                              items.userId,
+                              items.docId
+                            )
                           }
                           className="w-10 cursor-pointer"
                           src={assets.tick_icon}
@@ -146,4 +140,4 @@ const DoctorConsultation = () => {
   );
 };
 
-export default DoctorConsultation;
+export default UserConsultation;

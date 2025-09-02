@@ -13,6 +13,10 @@ const AdminContextProvider = (props) => {
   const [appointment, setAppointment] = useState([]);
   const [dashData, setDashData] = useState(false);
 
+  const [reportData, setReportData] = useState([]);
+  const [consultation, setConsultation] = useState([]);
+  const [allConsultation, setAllConsultation] = useState([]);
+
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const getDoctorList = async () => {
@@ -102,11 +106,106 @@ const AdminContextProvider = (props) => {
     }
   };
 
-  const cancelledConsultation = async (consultationId, docId, userId) => {
+  const getAllUserReportToAdmin = async () => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/admin/get-report",
+        {},
+        { headers: { atoken } }
+      );
+
+      if (data.success) {
+        console.log(data.reports);
+        setReportData(data.reports);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  const deleteReportToAdmin = async (reportId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/admin/get-report",
+        { reportId },
+        { headers: { atoken } }
+      );
+
+      if (data.success) {
+        console.log(data.reports);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  const getUserReportWithDoctorFromAdmin = async (userId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/admin/user-report",
+        { userId },
+        { headers: { atoken } }
+      );
+
+      if (data.success) {
+        console.log(data.userReport);
+        setReportData(data.userReport || []);
+      } else {
+        setReportData([]);
+        toast.error(data.success);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  const getUserAppointmenttWithDoctorFromAdmin = async (userId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/admin/user-appointment",
+        { userId },
+        { headers: { atoken } }
+      );
+
+      if (data.success) {
+        console.log(data.userAppointment);
+        setAppointment(data.userAppointment || []);
+      } else {
+        setReportData([]);
+        toast.error(data.success);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  const getUserConsultation = async (userId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/admin/user-consultation",
+        { userId },
+        { headers: { atoken } }
+      );
+
+      if (data.success) {
+        console.log(data.consultation);
+        setConsultation(data.consultation);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  const cancelledConsultation = async (consultationId, userId, docId) => {
     try {
       const { data } = await axios.post(
         backendUrl + "/api/admin/canceled-consultation",
-        { consultationId, docId, userId },
+        { consultationId, userId, docId },
         { headers: { atoken } }
       );
 
@@ -121,6 +220,41 @@ const AdminContextProvider = (props) => {
     }
   };
 
+  const completedConsultation = async (consultationId, userId, docId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/admin/user-completed",
+        { consultationId, userId, docId },
+        { headers: { atoken } }
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  const getAllConsultation = async () => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/admin/all-consultation",
+        {},
+        { headers: { atoken } }
+      );
+      if (data) {
+        console.log(data.consultation);
+        setAllConsultation(data.consultation);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
   const value = {
     atoken,
     setAtoken,
@@ -135,6 +269,17 @@ const AdminContextProvider = (props) => {
     dashData,
     getDashData,
     cancelledConsultation,
+    getAllUserReportToAdmin,
+    deleteReportToAdmin,
+    setReportData,
+    reportData,
+    getUserReportWithDoctorFromAdmin,
+    getUserAppointmenttWithDoctorFromAdmin,
+    getUserConsultation,
+    consultation,
+    allConsultation,
+    completedConsultation,
+    getAllConsultation,
   };
 
   return (

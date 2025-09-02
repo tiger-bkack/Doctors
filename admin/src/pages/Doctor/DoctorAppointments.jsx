@@ -72,8 +72,8 @@ function DoctorAppointments() {
     <div className="w-full max-w-6xl m-5">
       <p className="mb-3 font-medium text-lg">{`كل الحجوزات الخاصه بي ${docInfo.name}`}</p>
 
-      <div className="bg-white border border-gray-200 text-sm max-h-[80vh] min-h-[50vh] overflow-y-scroll">
-        <div className="max-sm:hidden grid grid-cols-[0.5fr_1fr_0.5fr_0.5fr_2fr_0.5fr_1fr] gap-1 py-3 px-6 border-b border-gray-200">
+      <div className="bg-white border border-gray-200 text-sm max-h-[80vh] min-h-[50vh] overflow-y-scroll rounded-2xl">
+        <div className="max-sm:hidden grid grid-cols-[0.3fr_1fr_0.5fr_0.4fr_2fr_0.5fr_1fr_0.2fr] gap-1 py-3 px-6 border-b border-gray-200">
           <p className="hidden md:block">#</p>
           <p>المريض</p>
           <p>حاله الدفع</p>
@@ -88,7 +88,7 @@ function DoctorAppointments() {
         {appointment.map((items, index) => (
           <div
             key={items._id}
-            className="flex flex-wrap justify-between  text-base sm:grid grid-cols-[0.5fr_1fr_0.5fr_0.5fr_2fr_0.5fr_1fr] gap-1 items-center py-3 px-6   border-b border-gray-200 text-gray-500 hover:bg-gray-50 transition-all duration-150"
+            className="flex flex-wrap justify-between  text-base sm:grid grid-cols-[0.3fr_1fr_0.5fr_0.4fr_2fr_0.5fr_1fr_0.2fr] gap-1 items-center py-3 px-6   border-b border-gray-200 text-gray-500 hover:bg-gray-50 transition-all duration-150"
           >
             <p className="hidden md:block">{index + 1}</p>
             <div className="flex items-center gap-3">
@@ -119,51 +119,64 @@ function DoctorAppointments() {
             <p>
               {items.amount} {currency}
             </p>
-
-            {items.cancelled ? (
-              <p className="text-red-400 font-medium text-sm">تم ألغاء الكشف</p>
-            ) : items.isCompleted ? (
-              <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center justify-center">
+              {items.cancelled ? (
+                <p className="text-red-400 font-medium text-sm">
+                  تم ألغاء الكشف
+                </p>
+              ) : items.isCompleted ? (
                 <p className="text-green-500 text-sm font-medium">تم الكشف</p>
-                <Dropdown inline className="px-3 py-3 !bg-gray-200 ">
-                  <DropdownItem onClick={() => handleOpenModal(items)}>
-                    أضافه تقرير
-                  </DropdownItem>
-                  <DropdownItem onClick={() => handleOpenViweModel(items)}>
-                    عرض التقارير
-                  </DropdownItem>
-                  <DropdownItem
-                    onClick={() => handleOpenConsualationModel(items)}
-                  >
-                    تحديد أستشارة
-                  </DropdownItem>
-                </Dropdown>
-              </div>
-            ) : (
-              <div className="flex gap-0.5 ">
-                {loadingActions[items._id] ? (
-                  <p className="flex items-center gap-2">
-                    <span>جاري التنفيذ...</span>
-                    <Spinner aria-label="Default status example" size="md" />
-                  </p>
-                ) : (
-                  <div className="w-full flex items-center justify-center gap-2">
-                    <img
-                      onClick={() => handleCancelAppointment(items._id)}
-                      className="w-10 cursor-pointer"
-                      src={assets.cancel_icon}
-                      alt="cancel"
-                    />
-                    <img
-                      onClick={() => handleCompleteAppointment(items._id)}
-                      className="w-10 cursor-pointer"
-                      src={assets.tick_icon}
-                      alt="complete"
-                    />
-                  </div>
-                )}
-              </div>
-            )}
+              ) : (
+                <div className="flex gap-0.5 ">
+                  {loadingActions[items._id] ? (
+                    <p className="flex items-center gap-2">
+                      <span>جاري التنفيذ...</span>
+                      <Spinner aria-label="Default status example" size="md" />
+                    </p>
+                  ) : (
+                    <div className="w-full flex items-center justify-center gap-2">
+                      <img
+                        onClick={() => handleCancelAppointment(items._id)}
+                        className="w-10 cursor-pointer"
+                        src={assets.cancel_icon}
+                        alt="cancel"
+                      />
+                      <img
+                        onClick={() => handleCompleteAppointment(items._id)}
+                        className="w-10 cursor-pointer"
+                        src={assets.tick_icon}
+                        alt="complete"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            <div className="">
+              <Dropdown
+                inline
+                className="px-3 py-3 !bg-gray-200 rounded-2xl drop-shadow-2xl "
+              >
+                <DropdownItem
+                  className="hover:bg-white hover:rounded-2xl transition-all ease-in duration-100"
+                  onClick={() => handleOpenModal(items)}
+                >
+                  أضافه تقرير
+                </DropdownItem>
+                <DropdownItem
+                  className="hover:bg-white hover:rounded-2xl transition-all ease-in duration-100"
+                  onClick={() => handleOpenViweModel(items)}
+                >
+                  عرض التقارير
+                </DropdownItem>
+                <DropdownItem
+                  className="hover:bg-white hover:rounded-2xl transition-all ease-in duration-100"
+                  onClick={() => handleOpenConsualationModel(items)}
+                >
+                  تحديد أستشارة
+                </DropdownItem>
+              </Dropdown>
+            </div>
           </div>
         ))}
       </div>

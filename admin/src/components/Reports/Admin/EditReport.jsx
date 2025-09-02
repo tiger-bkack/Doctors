@@ -7,8 +7,8 @@ import { AppContext } from "@/context/AppContext";
 import { AdminContext } from "@/context/AdminContext";
 
 const EditReport = ({ reportInfo, setOpenModal }) => {
-  const { reportData, setReportData, dtoken, backendUrl } =
-    useContext(DoctorContext);
+  const { atoken, reportData, setReportData, backendUrl } =
+    useContext(AdminContext);
 
   const { calculateAge, slotDateFormat } = useContext(AppContext);
 
@@ -48,7 +48,7 @@ const EditReport = ({ reportInfo, setOpenModal }) => {
   };
 
   // حفظ التعديل
-  const editReport = async () => {
+  const editReportFromAdmin = async () => {
     try {
       // const reportDataForUpdated = {
       //   complaint: reportData.complaint,
@@ -60,7 +60,7 @@ const EditReport = ({ reportInfo, setOpenModal }) => {
       // };
 
       const { data } = await axios.post(
-        backendUrl + "/api/doctor/update-report",
+        backendUrl + "/api/admin/edit-report",
         {
           complaint: reportData.complaint,
           examination: reportData.examination,
@@ -70,7 +70,7 @@ const EditReport = ({ reportInfo, setOpenModal }) => {
           nextVisit: reportData.nextVisit,
           reportId: reportInfo._id,
         },
-        { headers: { dtoken } }
+        { headers: { atoken } }
       );
 
       if (data.success) {
@@ -84,7 +84,6 @@ const EditReport = ({ reportInfo, setOpenModal }) => {
       toast.error(error.message);
     }
   };
-
   return (
     <div>
       <ModalHeader>تعديل التقرير</ModalHeader>
@@ -255,7 +254,7 @@ const EditReport = ({ reportInfo, setOpenModal }) => {
         </div>
       </ModalBody>
       <ModalFooter>
-        <Button className="cursor-pointer" onClick={editReport}>
+        <Button className="cursor-pointer" onClick={editReportFromAdmin}>
           تأكيد
         </Button>
         <Button

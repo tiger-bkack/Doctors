@@ -11,7 +11,7 @@ const Reports = () => {
       <div className="bg-white border border-gray-200 px-2 text-sm max-h-[100vh] min-h-[95vh] overflow-y-scroll">
         <Tabs aria-label="Tabs with icons" variant="underline">
           <TabItem active title="كل التقارير" icon={HiClipboardList}>
-            <AllReports className="shadow-2xl" />
+            <AllReports />
           </TabItem>
           <TabItem title=" البحث عن تقرير" icon={CiSearch}>
             <UserReportWithDoctor />
