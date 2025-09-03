@@ -23,6 +23,7 @@ const addDoctor = async (req, res) => {
       address,
       phone,
       start_booked,
+      consultation_fees,
     } = req.body;
 
     const imageFile = req.file;
@@ -39,7 +40,8 @@ const addDoctor = async (req, res) => {
       !fees ||
       !address ||
       !phone ||
-      !start_booked
+      !start_booked ||
+      !consultation_fees
     ) {
       return res.json({ success: false, message: "هنام بعض الحقول مفقودة" });
     }
@@ -90,6 +92,7 @@ const addDoctor = async (req, res) => {
       about,
       fees,
       phone,
+      consultation_fees,
       start_booked: JSON.parse(start_booked),
       address: JSON.parse(address),
       date: Date.now(),
@@ -202,16 +205,14 @@ const adminDashbord = async (req, res) => {
 const removeDoctor = async (req, res) => {
   try {
     const { docId } = req.body;
-    await doctorModel.findByIdAndDelete(docId);
 
-    // const { docId } = req.body;
-    // const doctorId = await doctorModel.findById(docId);
-    // if (doctorId && doctorId.docId === docId) {
-    //   await doctorModel.findByIdAndDelete(docId);
-    //   res.json({ success: true, message: "Doctor deleted successfully " });
-    // } else {
-    //   res.json({ success: false, message: "someting wrong" });
-    // }
+    const doctorId = await doctorModel.findById(docId);
+    if (doctorId) {
+      await doctorModel.findByIdAndDelete(docId);
+      res.json({ success: true, message: "Doctor deleted successfully " });
+    } else {
+      res.json({ success: false, message: "someting wrong" });
+    }
   } catch (error) {
     console.log(error);
     res.json({ success: fales, message: error.message });

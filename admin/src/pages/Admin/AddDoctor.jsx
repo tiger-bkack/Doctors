@@ -11,6 +11,7 @@ const AddDoctor = () => {
   const [password, setPassword] = useState("");
   const [experience, setExperience] = useState("1 Year");
   const [fees, setFees] = useState("");
+  const [consultationFees, setConsultationFees] = useState("");
   const [about, setAbout] = useState("");
   const [speciality, setSpeciality] = useState("طبيب عام");
   const [degree, setDegree] = useState("");
@@ -46,6 +47,7 @@ const AddDoctor = () => {
       formData.append("about", about);
       formData.append("fees", fees);
       formData.append("phone", phone);
+      formData.append("consultation_fees", consultationFees);
 
       formData.append(
         "address",
@@ -62,9 +64,9 @@ const AddDoctor = () => {
       );
 
       // console form
-      formData.forEach((value, key) => {
-        console.log(`${key} : ${value}`);
-      });
+      // formData.forEach((value, key) => {
+      //   console.log(`${key} : ${value}`);
+      // });
 
       const { data } = await axios.post(
         backendUrl + "/api/admin/add-doctor",
@@ -86,6 +88,7 @@ const AddDoctor = () => {
         setDegree("");
         setAddress1("");
         setAddress2("");
+        setConsultationFees("");
       } else {
         toast.error(data.message);
       }
@@ -213,6 +216,17 @@ const AddDoctor = () => {
 
           {/* Left section */}
           <div className="w-full lg:flex-1 flex flex-col gap-4">
+            <div className="flex-1 flex flex-col gap-1">
+              <p>سعر الاستشارة :</p>
+              <input
+                value={consultationFees}
+                onChange={(e) => setConsultationFees(e.target.value)}
+                className="border rounded px-3 py-2 border-gray-300"
+                type="text"
+                placeholder="سعر الكشف"
+                required
+              />
+            </div>
             <div className="flex-1 flex flex-col gap-1">
               <p>التخصص :</p>
               <select

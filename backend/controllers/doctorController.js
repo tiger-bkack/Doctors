@@ -5,6 +5,7 @@ import appointmentModel from "../models/appointmentModel.js";
 import reportModel from "../models/reportModel.js";
 import userModel from "../models/userModel.js";
 import consultationModel from "../models/consultationModel.js";
+import { sendMedicalReportEmail } from "../services/mailService.js";
 
 const changeAvalibality = async (req, res) => {
   try {
@@ -319,6 +320,7 @@ const addReport = async (req, res) => {
       message: "Report added successfully",
       report: newReport,
     });
+    sendMedicalReportEmail(appointment.userData.email, reportData);
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ success: false, message: error.message });
@@ -508,7 +510,7 @@ const createConsaltation = async (req, res) => {
     // تأكد إن يوم الاستشارة بعد يوم الحجز
     // لازم نحول slotDate لـ Date
     const [day, month, year] = appointmentData.slotDate.split("-");
-    const appointmentDate = new Date(`${year}-${month}-${day}`);
+    const appointmentDate = new Date(`${day}-${month}-${year}`);
     const consultDate = new Date(consultDay);
 
     if (consultDate <= appointmentDate) {

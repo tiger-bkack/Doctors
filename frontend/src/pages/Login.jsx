@@ -3,6 +3,7 @@ import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
   const { setToken, token, backendUrl } = useContext(AppContext);
@@ -15,6 +16,27 @@ const Login = () => {
   const [password, setPassword] = useState("");
 
   const [loader, setLoader] = useState(false);
+
+  const handleLoginWithGoogle = async (credentialRespones) => {
+    try {
+      const id_token = credentialRespones.credential;
+
+      const respones = await axios.post(backendUrl + "/api/user/google", {
+        id_token,
+      });
+
+      if (respones.data.success) {
+        localStorage.setItem("token", respones.data.token);
+        setToken(respones.data.token);
+        navgate("/");
+      } else {
+        toast.error(respones.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("فشل تسحيل الدخول عبر جوجل");
+    }
+  };
 
   const handelSubmitForm = async (e) => {
     e.preventDefault();
@@ -116,7 +138,7 @@ const Login = () => {
         </div>
         <button
           type="submit"
-          className="bg-[#5f6fff] text-white w-full rounded-md text-base py-2 cursor-pointer hover:bg-[#5f6fffc2] transition-all duration-200"
+          className="bg-[#5f6fff] text-white w-full rounded-3xl text-base py-2 cursor-pointer hover:bg-[#5f6fffc2] transition-all duration-200"
         >
           {state === "Sign up"
             ? loader
@@ -126,6 +148,17 @@ const Login = () => {
             ? "جاي التجيل الدخول..."
             : "تسجيل الدخول"}
         </button>
+
+        <GoogleLogin
+          size="large"
+          width={"320px"}
+          shape="circle"
+          onSuccess={(credentialRespones) =>
+            handleLoginWithGoogle(credentialRespones)
+          }
+          onError={() => toast.error("فشل تسجيل الدخول عبر جوجل")}
+        />
+
         {state === "Sign up" ? (
           <p className="text-sm">
             لديك حساب بالفعل؟{" "}

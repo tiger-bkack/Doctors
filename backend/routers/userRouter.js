@@ -5,6 +5,7 @@ import {
   cancelConsultation,
   getAllConsaltation,
   getConsaltation,
+  googleLogin,
   listAppointment,
   loginUser,
   registerUser,
@@ -22,6 +23,8 @@ const userRouter = express.Router();
 userRouter.post("/register", registerUser);
 
 userRouter.post("/login", loginUser);
+
+userRouter.post("/google", googleLogin);
 
 userRouter.get("/get-profile", authUser, userProfile);
 

@@ -9,14 +9,22 @@ import { AppContext } from "../../context/AppContext";
 import { assets } from "../../assets/assets";
 
 const Appointments = () => {
-  const { atoken, getAppointment, cancelAppointment, appointment } =
-    useContext(AdminContext);
+  const {
+    atoken,
+    getAppointment,
+    cancelAppointment,
+    appointment,
+    getDoctorList,
+    getUserAppointmenttWithDoctorFromAdmin,
+  } = useContext(AdminContext);
 
   const { calculateAge, slotDateFormat, currency } = useContext(AppContext);
 
   useEffect(() => {
     if (atoken) {
       getAppointment();
+      getDoctorList();
+      getUserAppointmenttWithDoctorFromAdmin();
     }
   }, [atoken]);
   return (

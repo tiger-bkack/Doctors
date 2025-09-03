@@ -11,6 +11,7 @@ const EditReport = ({ reportInfo, setOpenModal }) => {
     useContext(DoctorContext);
 
   const { calculateAge, slotDateFormat } = useContext(AppContext);
+  const { openNotificationWithIcon } = useContext(AdminContext);
 
   // لما يفتح المودال ينسخ البيانات من reportInfo لـ state
   useEffect(() => {
@@ -74,10 +75,20 @@ const EditReport = ({ reportInfo, setOpenModal }) => {
       );
 
       if (data.success) {
-        toast.success(data.message);
+        //toast.success(data.message);
+        openNotificationWithIcon(
+          "success",
+          "تعديل التقرير من قبل الطبيب",
+          data.message
+        );
         setOpenModal(false);
       } else {
-        toast.error(data.message);
+        // toast.error(data.message);
+        openNotificationWithIcon(
+          "error",
+          "تعديل التقرير من قبل الطبيب",
+          data.message
+        );
       }
     } catch (error) {
       console.log(error);

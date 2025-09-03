@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { useContext } from "react";
 import { AdminContext } from "../../context/AdminContext";
 import { useEffect } from "react";
 import { assets } from "../../assets/assets";
 import { AppContext } from "../../context/AppContext";
 import { useNavigate } from "react-router-dom";
+import LoadingPage from "@/components/LoadingPage";
 
 const Dashboard = () => {
   const {
@@ -13,20 +14,41 @@ const Dashboard = () => {
     cancelAppointment,
     dashData,
     cancelledConsultation,
+    getAppointment,
   } = useContext(AdminContext);
 
   const { slotDateFormat } = useContext(AppContext);
   const navgate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  const handelWaitDate = async () => {
+    try {
+      loading(true);
+      await getDashData();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (atoken) {
-      getDashData();
+      handelWaitDate();
+      getAppointment();
       cancelAppointment();
     }
   }, [atoken]);
+
+  if (loading)
+    return (
+      <div className="m-5">
+        <LoadingPage />
+      </div>
+    );
   return (
     dashData && (
-      <div className={`m-5 `}>
+      <div className="m-5">
         <div className=" flex flex-wrap gap-5">
           <div
             onClick={() => navgate("/doctor-list")}
@@ -89,7 +111,7 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-        <div className=" min-h-[50vh] max-h-[70vh] overflow-y-scroll">
+        <div className=" min-h-[50vh] max-h-[65vh] overflow-y-scroll mt-5">
           <div className="bg-white rounded-2xl">
             <div className="flex items-center gap-2.5 px-4 py-4 mt-10 rounded-t border border-gray-100 ">
               <img src={assets.list_icon} alt="" />

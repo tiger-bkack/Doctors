@@ -35,36 +35,36 @@ function ReportsView({ reports }) {
       <div className=" max-h-[85vh] min-h-[80vh] overflow-y-scroll rounded-2xl w-full">
         {(Array.isArray(reports) ? reports : [reports]).map((report, index) => (
           <div className="">
-            <div className="">
+            <div>
               <div
                 dir="rtl"
-                className="mt-5 w-full bg-white m-auto shadow-lg my-0 flex items-center justify-baseline border-b border-gray-500"
+                className="mt-5 w-full bg-white m-auto shadow-lg my-0 flex items-center justify-center "
               >
                 <button
                   className="py-1 px-10 w-[20%] flex items-center justify-center gap-2 group cursor-pointer border-l-1 border-gray-500 "
                   onClick={() => handlePrint(reportRefs.current[index])}
                 >
-                  <p className="text-gray-500 group-hover:text-gray-900 transition-all duration-150">
+                  <p className="text-gray-500 group-hover:text-[#5f6fff] transition-all duration-150">
                     طباعه
                   </p>
-                  <FaPrint className="text-[20px] text-gray-500 group-hover:text-gray-900 transition-all duration-150" />
+                  <FaPrint className="text-[20px] text-gray-500 group-hover:text-[#5f6fff] transition-all duration-150" />
                 </button>
 
-                <button
+                {/* <button
                   // onClick={() => deletedReport(report._id)}
                   className="py-1 px-10 w-[20%] flex items-center justify-center gap-2 group cursor-pointer border-l-1 border-gray-500 "
                 >
-                  <p className="text-gray-500 group-hover:text-gray-900 transition-all duration-150">
+                  <p className="text-gray-500 group-hover:text-[#5f6fff] transition-all duration-150">
                     حذف
                   </p>
-                  <MdDelete className="text-[20px] text-gray-500 group-hover:text-gray-900 transition-all duration-150" />
-                </button>
+                  <MdDelete className="text-[20px] text-gray-500 group-hover:text-[#5f6fff] transition-all duration-150" />
+                </button> */}
 
                 <button className="py-1 px-10 w-[20%] flex items-center justify-center gap-2 group cursor-pointer">
-                  <p className="text-gray-500 group-hover:text-gray-900 transition-all duration-150">
+                  <p className="text-gray-500 group-hover:text-[#5f6fff] transition-all duration-150">
                     مشاركة
                   </p>
-                  <FaShare className="text-[20px] w-[20%] text-gray-500 group-hover:text-gray-900 transition-all duration-150 " />
+                  <FaShare className="text-[20px] w-[20%] text-gray-500 group-hover:text-[#5f6fff] transition-all duration-150 " />
                 </button>
               </div>
             </div>
@@ -177,14 +177,6 @@ function ReportsView({ reports }) {
                     <p className="italic text-xs text-gray-500">
                       Doctor Signature
                     </p>
-                  </div>
-                  <div className="">
-                    <Button
-                      className=""
-                      onClick={() => handlePrint(reportRefs.current[index])}
-                    >
-                      Print Report
-                    </Button>
                   </div>
                 </div>
 

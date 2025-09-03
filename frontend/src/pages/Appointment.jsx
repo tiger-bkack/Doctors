@@ -66,7 +66,7 @@ const Appointment = () => {
       }
 
       let timeSlote = [];
-      let loopTime = new Date(startTime);
+      // let loopTime = new Date(startTime);
 
       while (currentDate < endTime) {
         let formatedTime = currentDate.toLocaleTimeString([], {

@@ -4,6 +4,7 @@ import { AppContext } from "@/context/AppContext";
 import React, { useContext, useEffect, useState } from "react";
 import { Dropdown, DropdownItem } from "flowbite-react";
 import { NavLink } from "react-router-dom";
+import { Spinner } from "flowbite-react";
 
 const Consutation = () => {
   const {

@@ -3,7 +3,13 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  password: {
+    type: String,
+    required: function () {
+      return !this.googleId;
+    },
+  },
+  googleId: { type: String },
   image: {
     type: String,
     default:
@@ -20,7 +26,7 @@ const userSchema = new mongoose.Schema({
   dob: { type: String, default: "Not selected" },
   phone: { type: String, default: "00000000000" },
   nationality: { type: String, default: "Egypt" },
-  nationaliId: { type: Number, required: true, unique: true },
+  nationaliId: { type: Number, unique: true, sparse: true },
 });
 
 const userModel = mongoose.models.user || mongoose.model("user", userSchema);

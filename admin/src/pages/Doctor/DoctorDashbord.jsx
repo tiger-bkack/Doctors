@@ -27,7 +27,6 @@ const DoctorDashbord = () => {
     if (dtoken) {
       getAppointments();
       getDoctorDashbord();
-
       getDoctorProfile();
     }
   }, [dtoken]);

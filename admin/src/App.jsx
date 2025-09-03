@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import "@ant-design/v5-patch-for-react-19";
 import Login from "./pages/Login";
 import { ToastContainer } from "react-toastify";
 import { AdminContext } from "./context/AdminContext";
@@ -28,7 +29,7 @@ import UserConsultation from "./components/consultations/userConsultation";
 import Consutation from "./pages/Admin/Consutation";
 
 const App = () => {
-  const { atoken } = useContext(AdminContext);
+  const { atoken, contextHolder } = useContext(AdminContext);
   const { dtoken } = useContext(DoctorContext);
 
   const [loading, setLoading] = useState(true);
@@ -80,6 +81,8 @@ const App = () => {
     return (
       <div dir="rtl" className="bg-[#f8f9fd]">
         <ToastContainer />
+        {contextHolder}
+
         <Navbar />
         <div className="flex items-start">
           <Routes></Routes>

@@ -2,12 +2,23 @@ import axios from "axios";
 import { createContext, useState } from "react";
 import { toast } from "react-toastify";
 
+import { notification } from "antd";
+
 export const AdminContext = createContext();
 
 const AdminContextProvider = (props) => {
   const [atoken, setAtoken] = useState(
     localStorage.getItem("atoken") ? localStorage.getItem("atoken") : ""
   );
+
+  const [api, contextHolder] = notification.useNotification();
+
+  const openNotificationWithIcon = (type, title = "", message) => {
+    api[type]({
+      message: title,
+      description: message,
+    });
+  };
 
   const [doctors, setDoctors] = useState([]);
   const [appointment, setAppointment] = useState([]);
@@ -26,10 +37,33 @@ const AdminContextProvider = (props) => {
       });
 
       if (data.success) {
-        console.log(data.doctors);
+        //console.log(data.doctors);
         setDoctors(data.doctors);
       } else {
-        toast.error(data.message);
+        //toast.error(data.message);
+        openNotificationWithIcon("error", "بيانات الطباء", data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  const removeDoctor = async (docId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/admin/delete-doctor",
+        { docId },
+        { headers: { atoken } }
+      );
+
+      if (data.success) {
+        //toast.success(data.message);
+        openNotificationWithIcon("success", "حذف الطبيب", data.message);
+        getDoctorList();
+      } else {
+        //toast.error(data.message);
+        openNotificationWithIcon("error", "حذف الطبيب", data.message);
       }
     } catch (error) {
       console.log(error);
@@ -47,10 +81,13 @@ const AdminContextProvider = (props) => {
         }
       );
       if (data.success) {
-        toast.success(data.message);
+        //toast.success(data.message);
+        openNotificationWithIcon("success", "تحديث حالة الطبيب", data.message);
+
         getDoctorList();
       } else {
         toast.error(data.message);
+        openNotificationWithIcon("error", "تحديث حالة الطبيب", data.message);
       }
     } catch (error) {
       console.log(error);
@@ -65,7 +102,6 @@ const AdminContextProvider = (props) => {
         { headers: { atoken } }
       );
       if (data.success) {
-        console.log(data.appointments);
         setAppointment(data.appointments);
       }
     } catch (error) {
@@ -82,9 +118,22 @@ const AdminContextProvider = (props) => {
         { headers: { atoken } }
       );
       if (data.success) {
-        toast.success(data.message);
+        //toast.success(data.message);
+        openNotificationWithIcon(
+          "success",
+          "ألغاء الحجز من قبل الادمن",
+          data.message
+        );
+
         getAppointment();
       }
+      // else {
+      //   openNotificationWithIcon(
+      //     "error",
+      //     "ألغاء الحجز من قبل الادمن",
+      //     data.message
+      //   );
+      // }
     } catch (error) {
       console.log(error);
       toast.error(error.message);
@@ -98,7 +147,7 @@ const AdminContextProvider = (props) => {
       });
       if (data.success) {
         setDashData(data.dashData);
-        console.log(data.dashData);
+        //console.log(data.dashData);
       }
     } catch (error) {
       console.log(error);
@@ -115,11 +164,16 @@ const AdminContextProvider = (props) => {
       );
 
       if (data.success) {
-        console.log(data.reports);
+        //console.log(data.reports);
         setReportData(data.reports);
       }
     } catch (error) {
       console.log(error);
+      getAllUserReportToAdmin(
+        "error",
+        "جلب كل تقارير النستخدم لي الادمن",
+        error.message
+      );
       toast.error(error.message);
     }
   };
@@ -127,13 +181,19 @@ const AdminContextProvider = (props) => {
   const deleteReportToAdmin = async (reportId) => {
     try {
       const { data } = await axios.post(
-        backendUrl + "/api/admin/get-report",
+        backendUrl + "/api/admin/delete-report",
         { reportId },
         { headers: { atoken } }
       );
 
       if (data.success) {
-        console.log(data.reports);
+        //console.log(data.reports);
+        getAllUserReportToAdmin();
+        openNotificationWithIcon(
+          "success",
+          "حذف التقرير للمريض من قبل الأدمن",
+          data.message
+        );
       }
     } catch (error) {
       console.log(error);
@@ -150,11 +210,17 @@ const AdminContextProvider = (props) => {
       );
 
       if (data.success) {
-        console.log(data.userReport);
+        // console.log(data.userReport);
         setReportData(data.userReport || []);
+        getAllUserReportToAdmin();
       } else {
         setReportData([]);
-        toast.error(data.success);
+        //toast.error(data.success);
+        openNotificationWithIcon(
+          "error",
+          "كل تقارير المارض لي كل الاطباء",
+          data.message
+        );
       }
     } catch (error) {
       console.log(error);
@@ -171,11 +237,34 @@ const AdminContextProvider = (props) => {
       );
 
       if (data.success) {
-        console.log(data.userAppointment);
+        //console.log(data.userAppointment);
         setAppointment(data.userAppointment || []);
+        getAppointment();
       } else {
         setReportData([]);
         toast.error(data.success);
+        openNotificationWithIcon(
+          "error",
+          "كل الحجزات الخاصة بالمريض مع كل الاطباء",
+          data.message
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  const getAllConsultation = async () => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/admin/all-consultation",
+        {},
+        { headers: { atoken } }
+      );
+      if (data) {
+        //console.log(data.consultation);
+        setAllConsultation(data.consultation);
       }
     } catch (error) {
       console.log(error);
@@ -192,8 +281,9 @@ const AdminContextProvider = (props) => {
       );
 
       if (data.success) {
-        console.log(data.consultation);
+        // console.log(data.consultation);
         setConsultation(data.consultation);
+        getAllConsultation();
       }
     } catch (error) {
       console.log(error);
@@ -210,9 +300,20 @@ const AdminContextProvider = (props) => {
       );
 
       if (data.success) {
-        toast.success(data.message);
+        //toast.success(data.message);
+        getAllConsultation();
+        openNotificationWithIcon(
+          "success",
+          "ألغاء الأستشارة من قبل الادمن",
+          data.message
+        );
       } else {
-        toast.error(data.message);
+        //toast.error(data.message);
+        openNotificationWithIcon(
+          "error",
+          "ألغاء الأستشارة من قبل الادمن",
+          data.message
+        );
       }
     } catch (error) {
       console.log(error);
@@ -229,9 +330,20 @@ const AdminContextProvider = (props) => {
       );
 
       if (data.success) {
-        toast.success(data.message);
+        //toast.success(data.message);
+        getAllConsultation();
+        openNotificationWithIcon(
+          "success",
+          "أكمال الأستشارة من قبل الادمن",
+          data.message
+        );
       } else {
-        toast.error(data.message);
+        //toast.error(data.message);
+        openNotificationWithIcon(
+          "error",
+          "أكمال الأستشارة من قبل الادمن",
+          data.message
+        );
       }
     } catch (error) {
       console.log(error);
@@ -239,22 +351,6 @@ const AdminContextProvider = (props) => {
     }
   };
 
-  const getAllConsultation = async () => {
-    try {
-      const { data } = await axios.post(
-        backendUrl + "/api/admin/all-consultation",
-        {},
-        { headers: { atoken } }
-      );
-      if (data) {
-        console.log(data.consultation);
-        setAllConsultation(data.consultation);
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error(error.message);
-    }
-  };
   const value = {
     atoken,
     setAtoken,
@@ -280,6 +376,9 @@ const AdminContextProvider = (props) => {
     allConsultation,
     completedConsultation,
     getAllConsultation,
+    removeDoctor,
+    contextHolder,
+    openNotificationWithIcon,
   };
 
   return (

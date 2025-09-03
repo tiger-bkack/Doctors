@@ -8,6 +8,12 @@ import appointmentModel from "../models/appointmentModel.js";
 import Stripe from "stripe";
 import reportModel from "../models/reportModel.js";
 import consultationModel from "../models/consultationModel.js";
+import { auth, OAuth2Client } from "google-auth-library";
+import {
+  sendWelcomEmail,
+  sendAppointmentDetailsToUserEmail,
+  sendConsultationDetailsToUserEmail,
+} from "../services/mailService.js";
 
 // user login
 const registerUser = async (req, res) => {
@@ -55,7 +61,6 @@ const registerUser = async (req, res) => {
 };
 
 //api lo login
-
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -80,6 +85,50 @@ const loginUser = async (req, res) => {
         message: "هناك خطاء قي البريد الالكتروني أو كلمة السر",
       });
     }
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// Login with goole
+const client = new OAuth2Client(process.env.CLIENT_ID);
+const googleLogin = async (req, res) => {
+  try {
+    const { id_token } = req.body;
+
+    //1- verify google token
+    const ticket = await client.verifyIdToken({
+      idToken: id_token,
+      audience: process.env.CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { sub, email, name, picture } = payload;
+
+    //2- check if user exists
+    let user = await userModel.findOne({ email });
+
+    if (!user) {
+      user = await userModel.create({
+        name,
+        email,
+        password: "",
+        image: picture || undefined,
+        googleId: sub,
+      });
+
+      sendWelcomEmail(email, name);
+    }
+
+    // 3- generate JWT
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+
+    res.json({
+      success: true,
+      token,
+      user: { name: user.name, email: user.email, image: user.image },
+    });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
@@ -224,6 +273,13 @@ const bookAppointment = async (req, res) => {
 
     const newAppointment = new appointmentModel(appointmentData);
     await newAppointment.save();
+
+    sendAppointmentDetailsToUserEmail(
+      userData.email,
+      userData.name,
+      appointmentData,
+      docData
+    );
 
     // save new slot in doctor data (docData)
     await doctorModel.findByIdAndUpdate(docId, { slots_booked });
@@ -454,6 +510,15 @@ const updateConsaltationTime = async (req, res) => {
       message: "تم تحديث وقت الاستشارة بنجاح",
       consaltation,
     });
+
+    sendConsultationDetailsToUserEmail(
+      consaltation.userData.email,
+      consaltation.userData.email,
+      docData,
+      consultDay,
+      consultTime,
+      consaltation.notes
+    );
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
@@ -503,6 +568,7 @@ const cancelConsultation = async (req, res) => {
 export {
   registerUser,
   loginUser,
+  googleLogin,
   userProfile,
   updateProfileUserInfo,
   bookAppointment,

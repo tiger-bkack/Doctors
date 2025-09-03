@@ -39,7 +39,7 @@ adminRouter.post("/cancel-appointment", authAdmin, cancelAppointment);
 
 adminRouter.get("/dashbord", authAdmin, adminDashbord);
 
-adminRouter.delete("/delete-doctor", authAdmin, removeDoctor);
+adminRouter.post("/delete-doctor", authAdmin, removeDoctor);
 
 adminRouter.post("/canceled-consultation", authAdmin, cancelConsultation);
 

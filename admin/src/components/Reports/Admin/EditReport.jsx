@@ -7,8 +7,14 @@ import { AppContext } from "@/context/AppContext";
 import { AdminContext } from "@/context/AdminContext";
 
 const EditReport = ({ reportInfo, setOpenModal }) => {
-  const { atoken, reportData, setReportData, backendUrl } =
-    useContext(AdminContext);
+  const {
+    atoken,
+    reportData,
+    setReportData,
+    backendUrl,
+    openNotificationWithIcon,
+    getAllUserReportToAdmin,
+  } = useContext(AdminContext);
 
   const { calculateAge, slotDateFormat } = useContext(AppContext);
 
@@ -74,14 +80,30 @@ const EditReport = ({ reportInfo, setOpenModal }) => {
       );
 
       if (data.success) {
-        toast.success(data.message);
+        //toast.success(data.message);
+        getAllUserReportToAdmin();
+        openNotificationWithIcon(
+          "success",
+          "تحديث التقارير من قبل الطبيب",
+          data.message
+        );
         setOpenModal(false);
       } else {
-        toast.error(data.message);
+        openNotificationWithIcon(
+          "error",
+          "تحديث التقارير من قبل الطبيب",
+          data.message
+        );
+        //toast.error(data.message);
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
+      //toast.error(error.message);
+      openNotificationWithIcon(
+        "error",
+        "تحديث التقارير من قبل الطبيب",
+        error.message
+      );
     }
   };
   return (

@@ -1,6 +1,9 @@
-import { createContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { notification } from "antd";
+import { AdminContext } from "./AdminContext";
+
 export const DoctorContext = createContext();
 
 const DoctorContextProvider = (props) => {
@@ -8,6 +11,16 @@ const DoctorContextProvider = (props) => {
   const [dtoken, setDtoken] = useState(
     localStorage.getItem("dtoken") ? localStorage.getItem("dtoken") : ""
   );
+
+  // const [api, contextHolderDoctor] = notification.useNotification();
+
+  // const openNotificationWithIcon = (type, message) => {
+  //   api[type]({
+  //     message: message,
+  //   });
+  // };
+
+  const { openNotificationWithIcon } = useContext(AdminContext);
   const [loader, setLoader] = useState(false);
   const [getAppointmentLoader, setGetAppointmentLoader] = useState(false);
 
@@ -19,9 +32,6 @@ const DoctorContextProvider = (props) => {
   const [reportData, setReportData] = useState([]);
 
   const [consultation, setConsultation] = useState([]);
-  const [consultationMesssage, setConsultationMessage] = useState("");
-
-  const [userReportWithDoctor, setUserReportWithDoctor] = useState([]);
 
   const getAppointments = async () => {
     try {
@@ -34,13 +44,15 @@ const DoctorContextProvider = (props) => {
 
       if (data.success) {
         setAppointment(data.appointments);
-        console.log(data.appointments);
+        //console.log(data.appointments);
       } else {
-        toast.error(data.message);
+        //toast.error(data.message);
+        openNotificationWithIcon("error", data.message);
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
+      //toast.error(error.message);
+      openNotificationWithIcon("error", error.message);
     } finally {
       setGetAppointmentLoader(false);
     }
@@ -57,11 +69,15 @@ const DoctorContextProvider = (props) => {
 
       if (data.success) {
         toast.success(data.message);
+        openNotificationWithIcon("success", data.message);
+
         getAppointments();
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
+      openNotificationWithIcon("error", error.message);
+
+      // toast.error(error.message);
     } finally {
       setLoader(false);
     }
@@ -78,11 +94,14 @@ const DoctorContextProvider = (props) => {
       );
 
       if (data.success) {
-        toast.success(data.message);
+        //toast.success(data.message);
+        openNotificationWithIcon("success", data.message);
         getAppointments();
       }
     } catch (error) {
       console.log(error);
+      openNotificationWithIcon("error", error.message);
+
       toast.error(error.message);
     } finally {
       setLoader(false);
@@ -100,13 +119,16 @@ const DoctorContextProvider = (props) => {
       );
       if (data.success) {
         setDashData(data.dashData);
-        console.log(data.dashData);
+        //console.log(data.dashData);
       } else {
-        toast.error(data.message);
+        openNotificationWithIcon("success", data.message);
+        //toast.error(data.message);
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
+      openNotificationWithIcon("error", error.message);
+
+      //toast.error(error.message);
     }
   };
 
@@ -119,12 +141,14 @@ const DoctorContextProvider = (props) => {
       );
 
       if (data.success) {
-        console.log(data.docInfo);
+        //console.log(data.docInfo);
         setDocInfo(data.docInfo);
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
+      openNotificationWithIcon("error", error.message);
+
+      //toast.error(error.message);
     }
   };
 
@@ -136,11 +160,14 @@ const DoctorContextProvider = (props) => {
         { headers: { dtoken } }
       );
       if (data.success) {
-        toast.success(data.message);
+        openNotificationWithIcon("success", data.message);
+        //toast.success(data.message);
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
+      openNotificationWithIcon("error", error.message);
+
+      // toast.error(error.message);
     }
   };
 
@@ -152,12 +179,14 @@ const DoctorContextProvider = (props) => {
         { headers: { dtoken } }
       );
       if (data.success) {
-        console.log(data.reports);
+        //console.log(data.reports);
         setReportData(data.reports);
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
+      openNotificationWithIcon("error", error.message);
+
+      //toast.error(error.message);
     }
   };
 
@@ -170,15 +199,17 @@ const DoctorContextProvider = (props) => {
       );
 
       if (data.success) {
-        console.log(data.userReport);
+        //console.log(data.userReport);
         setReportData(data.userReport || []);
       } else {
         setReportData([]);
-        toast.error(data.success);
+        //toast.error(data.success);
+        openNotificationWithIcon("error", data.message);
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
+      openNotificationWithIcon("error", error.message);
+      //toast.error(error.message);
     }
   };
 
@@ -194,7 +225,9 @@ const DoctorContextProvider = (props) => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
+      openNotificationWithIcon("error", error.message);
+
+      //toast.error(error.message);
     }
   };
 
@@ -211,13 +244,17 @@ const DoctorContextProvider = (props) => {
       );
 
       if (data.success) {
-        toast.success(data.message);
+        // toast.success(data.message);
+        openNotificationWithIcon("success", data.message);
       } else {
-        toast.error(data.message);
+        // toast.error(data.message);
+        openNotificationWithIcon("error", data.message);
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
+      openNotificationWithIcon("error", error.message);
+
+      // toast.error(error.message);
     } finally {
       setLoader(false);
     }
@@ -233,13 +270,17 @@ const DoctorContextProvider = (props) => {
       );
 
       if (data.success) {
-        toast.success(data.message);
+        //toast.success(data.message);
+        openNotificationWithIcon("success", data.message);
       } else {
-        toast.error(data.message);
+        //toast.error(data.message);
+        openNotificationWithIcon("error", data.message);
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
+      openNotificationWithIcon("error", error.message);
+
+      //toast.error(error.message);
     } finally {
       setLoader(false);
     }
@@ -254,15 +295,18 @@ const DoctorContextProvider = (props) => {
       );
 
       if (data.success) {
-        console.log(data.consualtations);
+        // console.log(data.consualtations);
         setConsultation(data.consualtations);
       } else {
-        console.log(data.message);
-        toast.error(data.message);
+        // console.log(data.message);
+        // toast.error(data.message);
+        openNotificationWithIcon("error", data.message);
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
+      openNotificationWithIcon("error", error.message);
+
+      // toast.error(error.message);
     }
   };
 
@@ -276,12 +320,16 @@ const DoctorContextProvider = (props) => {
 
       if (data.success) {
         toast.success(data.message);
+        openNotificationWithIcon("success", data.message);
       } else {
         toast.error(data.message);
+        openNotificationWithIcon("error", data.message);
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
+      openNotificationWithIcon("error", error.message);
+
+      //toast.error(error.message);
     }
   };
 
@@ -304,7 +352,6 @@ const DoctorContextProvider = (props) => {
     getAllReport,
     reportData,
     setReportData,
-    userReportWithDoctor,
     getUserReportWithDoctor,
     getUserInfo,
     userData,
@@ -312,7 +359,6 @@ const DoctorContextProvider = (props) => {
     cancelConsultation,
     getConsultation,
     consultation,
-    consultationMesssage,
     deletedSlotsBooked,
     deletedReport,
   };
