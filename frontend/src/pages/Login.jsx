@@ -112,6 +112,7 @@ const Login = () => {
             <p>الاسم بالكامل :</p>
             <input
               type="text"
+              name="name"
               value={name}
               className="border border-zinc-300 rounded w-full p-2 mt-1"
               onChange={(event) => setName(event.target.value)}
@@ -122,6 +123,7 @@ const Login = () => {
           <p>البريد الإلكتروني :</p>
           <input
             type="email"
+            name="email"
             value={email}
             className="border border-zinc-300 rounded w-full p-2 mt-1"
             onChange={(event) => setEmail(event.target.value)}
@@ -131,6 +133,7 @@ const Login = () => {
           <p>كلمة المرور :</p>
           <input
             type="password"
+            name="password"
             value={password}
             className="border border-zinc-300 rounded w-full p-2 mt-1"
             onChange={(event) => setPassword(event.target.value)}

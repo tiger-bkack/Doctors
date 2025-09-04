@@ -14,6 +14,7 @@ import {
   sendAppointmentDetailsToUserEmail,
   sendConsultationDetailsToUserEmail,
 } from "../services/mailService.js";
+import client from "../config/redisClient.js";
 
 // user login
 const registerUser = async (req, res) => {
@@ -92,13 +93,13 @@ const loginUser = async (req, res) => {
 };
 
 // Login with goole
-const client = new OAuth2Client(process.env.CLIENT_ID);
+const clientGoogle = new OAuth2Client(process.env.CLIENT_ID);
 const googleLogin = async (req, res) => {
   try {
     const { id_token } = req.body;
 
     //1- verify google token
-    const ticket = await client.verifyIdToken({
+    const ticket = await clientGoogle.verifyIdToken({
       idToken: id_token,
       audience: process.env.CLIENT_ID,
     });
@@ -291,10 +292,20 @@ const bookAppointment = async (req, res) => {
   }
 };
 
-// get all appointment list for user
+// get all appointment list for user ---- with chached
 const listAppointment = async (req, res) => {
   try {
     const userId = req.body?.userId || req.userId;
+
+    const chachedUserListAppointment = await client.get(
+      `user-appointment-${userId}`
+    );
+    if (chachedUserListAppointment) {
+      return res.json({
+        success: true,
+        appointments: JSON.parse(chachedUserListAppointment),
+      });
+    }
 
     const appointments = await appointmentModel.find({ userId });
 
@@ -304,7 +315,11 @@ const listAppointment = async (req, res) => {
         message: "ليس لديك حجزات بعد",
       });
     }
-
+    await client.setEx(
+      `user-appointment-${userId}`,
+      240,
+      JSON.stringify(appointments)
+    );
     res.json({ success: true, appointments });
   } catch (error) {
     console.log(error);
@@ -348,16 +363,23 @@ const cancelAppointment = async (req, res) => {
   }
 };
 
-// get all reports
+// get all reports  ---- with chached
 const userReports = async (req, res) => {
   try {
     const userId = req.userId;
+    const chachedUserReport = await client.get(`user-reports-${userId}`);
+    if (chachedUserReport) {
+      return res.json({
+        success: true,
+        reports: JSON.parse(chachedUserReport),
+      });
+    }
     const reports = await reportModel.find({ userId });
 
     if (!reports || reports.length === 0) {
       return res.json({ success: true, message: "لا يوجد اي تقارير حتي الان" });
     }
-
+    await client.setEx(`user-reports-${userId}`, 240, JSON.stringify(reports));
     return res.json({ success: true, reports });
   } catch (error) {
     console.log(error);
@@ -365,10 +387,18 @@ const userReports = async (req, res) => {
   }
 };
 
-// get how many appointment for this use and report
+// get how many appointment for this use and report ---- with chached
 const useDetails = async (req, res) => {
   try {
     const userId = req.userId;
+
+    const chachedUserDetails = await client.get(`user-detals-${userId}`);
+    if (chachedUserDetails) {
+      return res.json({
+        success: true,
+        userDetails: JSON.parse(chachedUserDetails),
+      });
+    }
 
     const userAppointment = await appointmentModel.find({ userId });
     const userReport = await reportModel.find({ userId });
@@ -379,6 +409,11 @@ const useDetails = async (req, res) => {
       userReport: userReport.length,
       userConsultation: userConsultation.length,
     };
+    await client.setEx(
+      `user-detals-${userId}`,
+      240,
+      JSON.stringify(userDetails)
+    );
 
     res.json({ success: true, userDetails });
   } catch (error) {
@@ -387,11 +422,21 @@ const useDetails = async (req, res) => {
   }
 };
 
-// get consultation to user
+// get consultation to user ---- with chached
 const getConsaltation = async (req, res) => {
   try {
     const { appointmentId, docId } = req.body;
     const userId = req.userId;
+
+    const chachedUserConsultation = await client.get(
+      `user-consultation-${userId}-${appointmentId}-${docId}`
+    );
+    if (chachedUserConsultation) {
+      return res.json({
+        success: true,
+        consaltaionData: JSON.parse(chachedUserConsultation),
+      });
+    }
 
     const consaltaionData = await consultationModel.findOne({
       appointmentId,
@@ -405,6 +450,11 @@ const getConsaltation = async (req, res) => {
         message: "لم يقوم الطبيب بتحديد موعد أستشارة",
       });
     }
+    await client.setEx(
+      `user-consultation-${userId}-${appointmentId}-${docId}`,
+      240,
+      JSON.stringify(consaltaionData)
+    );
 
     res.json({ success: true, consaltaionData });
   } catch (error) {
@@ -413,10 +463,19 @@ const getConsaltation = async (req, res) => {
   }
 };
 
-// get all consultation to user
+// get all consultation to user ---- with chached
 const getAllConsaltation = async (req, res) => {
   try {
     const userId = req.userId;
+    const chachedAllUserConsultation = await client.get(
+      `user-all-consultation-${userId}`
+    );
+    if (chachedAllUserConsultation) {
+      return res.json({
+        success: true,
+        consaltationData: JSON.parse(chachedAllUserConsultation),
+      });
+    }
     const consaltationData = await consultationModel.find({ userId: userId });
 
     if (!consaltationData) {
@@ -425,6 +484,11 @@ const getAllConsaltation = async (req, res) => {
         message: "you don't have consultation yet",
       });
     }
+    await client.setEx(
+      `user-all-consultation-${userId}`,
+      240,
+      JSON.stringify(consaltationData)
+    );
 
     res.json({ success: true, consaltationData });
   } catch (error) {

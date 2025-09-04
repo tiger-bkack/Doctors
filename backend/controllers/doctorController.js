@@ -6,6 +6,7 @@ import reportModel from "../models/reportModel.js";
 import userModel from "../models/userModel.js";
 import consultationModel from "../models/consultationModel.js";
 import { sendMedicalReportEmail } from "../services/mailService.js";
+import client from "../config/redisClient.js";
 
 const changeAvalibality = async (req, res) => {
   try {
@@ -24,12 +25,24 @@ const changeAvalibality = async (req, res) => {
 
 const doctorList = async (req, res) => {
   try {
+    // هشوف الدكاترة موجوده جوه caching  ولا لا
+    const chachedDoctors = await client.get("doctors");
+
+    if (chachedDoctors) {
+      console.log("من الكاش");
+      return res.json({ success: true, doctors: JSON.parse(chachedDoctors) });
+    }
+
+    // لو مش متخذنة كدا هروح لي الداتا بيز واجيب البيانات و هخذنها لمده 5 دقائق مثلاً علشان معملش loading علي ال DB
     const doctors = await doctorModel.find({}).select(["-password", "-email"]);
+
+    await client.setEx("doctors", 60, JSON.stringify(doctors));
+    console.log("من الداتا بيز");
 
     res.json({ success: true, doctors });
   } catch (error) {
     console.log(error);
-    res.json({ success: fales, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };
 
@@ -61,11 +74,27 @@ const loginDoctor = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-
+// api to get doctor appointments
 const doctorAppointments = async (req, res) => {
   try {
     const { docId } = req.body;
+
+    // هشوف الدكاترة موجوده جوه caching  ولا لا
+    const chachedDoctors = await client.get(`doctor-appointments-${docId}`);
+
+    if (chachedDoctors) {
+      console.log("من الكاش");
+      return res.json({
+        success: true,
+        appointments: JSON.parse(chachedDoctors),
+      });
+    }
     const appointments = await appointmentModel.find({ docId });
+    await client.setEx(
+      `doctor-appointments-${docId}`,
+      120,
+      JSON.stringify(appointments)
+    );
 
     res.json({ success: true, appointments });
   } catch (error) {
@@ -157,10 +186,20 @@ const deleteSlotsBooked = async (req, res) => {
   }
 };
 
-// doctor api ------> dashbord
+// doctor api ------> dashbord ---- with chached
 const doctorDashbord = async (req, res) => {
   try {
     const { docId } = req.body;
+
+    const chachedDoctorDashbord = await client.get(`docotr-dachbord-${docId}`);
+    if (chachedDoctorDashbord) {
+      console.log("بيانات لوحة التحكم من الكاش الخاصة بالطبيب");
+      return res.json({
+        success: true,
+        dashData: JSON.parse(chachedDoctorDashbord),
+      });
+    }
+
     const appointments = await appointmentModel.find({ docId });
     const consultations = await consultationModel.find({ docId });
 
@@ -202,6 +241,12 @@ const doctorDashbord = async (req, res) => {
       latestConsultation: consultations.reverse().slice(0, 3),
     };
 
+    await client.setEx(
+      `docotr-dachbord-${docId}`,
+      120,
+      JSON.stringify(dashData)
+    );
+
     res.json({ success: true, dashData });
   } catch (error) {
     console.log(error);
@@ -209,12 +254,22 @@ const doctorDashbord = async (req, res) => {
   }
 };
 
-// api to get doctor info to -------> dashbord
+// api to get doctor info to -------> dashbord ---- with chached
 const doctorProfile = async (req, res) => {
   try {
     const { docId } = req.body;
-    const docInfo = await doctorModel.findById(docId).select("-password");
 
+    const chachedDoctorProfile = await client.get(`doctor-data-${docId}`);
+    if (chachedDoctorProfile) {
+      console.log("بيانات الدكتور من الكاش");
+
+      return res.json({
+        success: true,
+        docInfo: JSON.parse(chachedDoctorProfile),
+      });
+    }
+    const docInfo = await doctorModel.findById(docId).select("-password");
+    await client.setEx(`doctor-data-${docId}`, 120, JSON.stringify(docInfo));
     res.json({ success: true, docInfo });
   } catch (error) {
     console.log(error);
@@ -365,10 +420,20 @@ const editReport = async (req, res) => {
   }
 };
 
-//api get all report to doctor dashbord
+//api get all report to doctor dashbord ---- with chached
 const allReport = async (req, res) => {
   try {
-    const reports = await reportModel.find({});
+    const docId = req.docId;
+    const chachedAllReport = await client.get(`all-report-${docId}`);
+    if (chachedAllReport) {
+      console.log("من الكاش يااااامان");
+
+      return res.json({ success: true, reports: JSON.parse(chachedAllReport) });
+    }
+
+    const reports = await reportModel.find({ docId });
+
+    await client.setEx(`all-report-${docId}`, 120, JSON.stringify(reports));
     res.json({ success: true, reports });
   } catch (error) {
     console.log(error);
@@ -376,11 +441,22 @@ const allReport = async (req, res) => {
   }
 };
 
-// api to get user reports from the doctor
+// api to get user reports from the doctor ---- with chached
 const getUserReportWithDoctor = async (req, res) => {
   try {
     const { userId } = req.body;
     const docId = req.docId;
+
+    const chachedUserReportsWithDoctor = await client.get(
+      `user-report-${userId}-${docId}`
+    );
+
+    if (chachedUserReportsWithDoctor) {
+      return res.json({
+        success: true,
+        userReport: JSON.parse(chachedUserReportsWithDoctor),
+      });
+    }
     const userReport = await reportModel.find({ userId, docId });
 
     if (!userReport) {
@@ -390,6 +466,12 @@ const getUserReportWithDoctor = async (req, res) => {
     if (userReport.length === 0) {
       return res.json({ success: true, message: "لا يوجد تقارير" });
     }
+
+    await client.setEx(
+      `user-report-${userId}-${docId}`,
+      120,
+      JSON.stringify(userReport)
+    );
     res.status(200).json({ success: true, userReport });
   } catch (error) {
     console.log(error);
@@ -397,6 +479,7 @@ const getUserReportWithDoctor = async (req, res) => {
   }
 };
 
+// api controller to delete user report from doctor dashbord
 const deletedReport = async (req, res) => {
   try {
     const { reportId } = req.body;
@@ -420,7 +503,7 @@ const deletedReport = async (req, res) => {
 const searchUser = async (req, res) => {
   try {
     const { q } = req.body;
-    const docId = req.docId; // middleware
+    const docId = req.docId;
 
     if (!q || !docId) {
       return res
@@ -451,10 +534,19 @@ const searchUser = async (req, res) => {
   }
 };
 
-// get how many appointment for this use and report
+// get how many appointment for this use and report ---- with chached
 const useDetails = async (req, res) => {
   try {
     const { userId } = req.body;
+
+    const chachedUserDetalis = await client.get(`user-details-${userId}`);
+    if (chachedUserDetalis) {
+      console.log("بيانات المريض من الكاش");
+      return res.json({
+        success: true,
+        userDetails: JSON.parse(chachedUserDetalis),
+      });
+    }
 
     const userAppointment = await appointmentModel.find({ userId });
     const userReport = await reportModel.find({ userId });
@@ -463,6 +555,12 @@ const useDetails = async (req, res) => {
       userAppointment: userAppointment.length,
       userReport: userReport.length,
     };
+
+    await client.setEx(
+      `user-details-${userId}`,
+      120,
+      JSON.stringify(userDetails)
+    );
 
     res.json({ success: true, userDetails });
   } catch (error) {
@@ -566,6 +664,7 @@ const consultationCompeleted = async (req, res) => {
   }
 };
 
+// api controller to cancel consultation from doctor
 const cancelConsultation = async (req, res) => {
   try {
     const { consultationId, userId } = req.body;
@@ -594,16 +693,33 @@ const cancelConsultation = async (req, res) => {
   }
 };
 
-// get all consultation to doctor
+// get all consultation to doctor ---- with chached
 const doctorConsultation = async (req, res) => {
   try {
     const docId = req.docId;
+
+    const chachedConsultation = await client.get(
+      `doctor-consultation-${docId}`
+    );
+    if (chachedConsultation) {
+      console.log("الاستشارة من الكاش");
+      return res.json({
+        success: true,
+        consualtations: JSON.parse(chachedConsultation),
+      });
+    }
 
     const consualtations = await consultationModel.find({ docId });
 
     if (!consualtations) {
       res.json({ success: true, message: "لاتوجد أي استشارات حالياً" });
     }
+
+    await client.setEx(
+      `doctor-consultation-${docId}`,
+      120,
+      JSON.stringify(consualtations)
+    );
 
     res.json({ success: true, consualtations });
   } catch (error) {

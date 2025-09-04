@@ -17,40 +17,62 @@ import {
 } from "../controllers/userController.js";
 import authUser from "../middlewares/authUser.js";
 import upload from "../middlewares/multer.js";
+import { authlimiter, normalLimiter } from "../middlewares/rateLimiting.js";
 
 const userRouter = express.Router();
 
-userRouter.post("/register", registerUser);
+userRouter.post("/register", authlimiter, registerUser);
 
-userRouter.post("/login", loginUser);
+userRouter.post("/login", authlimiter, loginUser);
 
-userRouter.post("/google", googleLogin);
+userRouter.post("/google", authlimiter, googleLogin);
 
-userRouter.get("/get-profile", authUser, userProfile);
+userRouter.get("/get-profile", normalLimiter, authUser, userProfile);
 
 userRouter.post(
   "/update-ptofile",
+  normalLimiter,
   upload.single("image"),
   authUser,
   updateProfileUserInfo
 );
 
-userRouter.get("/list-appointment", authUser, listAppointment);
+userRouter.get("/list-appointment", normalLimiter, authUser, listAppointment);
 
-userRouter.post("/book-appointment", authUser, bookAppointment);
+userRouter.post("/book-appointment", normalLimiter, authUser, bookAppointment);
 
-userRouter.post("/cancel-appointment", authUser, cancelAppointment);
+userRouter.post(
+  "/cancel-appointment",
+  normalLimiter,
+  authUser,
+  cancelAppointment
+);
 
-userRouter.post("/reports", authUser, userReports);
+userRouter.post("/reports", normalLimiter, authUser, userReports);
 
-userRouter.post("/user-info", authUser, useDetails);
+userRouter.post("/user-info", normalLimiter, authUser, useDetails);
 
-userRouter.post("/consaltation", authUser, getConsaltation);
+userRouter.post("/consaltation", normalLimiter, authUser, getConsaltation);
 
-userRouter.post("/all-consaltation", authUser, getAllConsaltation);
+userRouter.post(
+  "/all-consaltation",
+  normalLimiter,
+  authUser,
+  getAllConsaltation
+);
 
-userRouter.post("/update-ConsaltationTime", authUser, updateConsaltationTime);
+userRouter.post(
+  "/update-ConsaltationTime",
+  normalLimiter,
+  authUser,
+  updateConsaltationTime
+);
 
-userRouter.post("/cancel-consultation", authUser, cancelConsultation);
+userRouter.post(
+  "/cancel-consultation",
+  normalLimiter,
+  authUser,
+  cancelConsultation
+);
 
 export default userRouter;
