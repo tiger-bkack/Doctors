@@ -36,5 +36,3 @@ app.use("/api/user", userRouter);
 app.listen(port, () => {
   console.log(`Server starting in port ${port}`);
 });
-
-export default app;
